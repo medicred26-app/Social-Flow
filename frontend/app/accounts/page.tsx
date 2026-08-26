@@ -27,8 +27,66 @@ export default function AccountsPage() {
   const [accountTypeInput, setAccountTypeInput] = useState<'page' | 'profile' | 'channel' | 'business'>('business');
   const [followerCountInput, setFollowerCountInput] = useState('12500');
 
+  const [notification, setNotification] = useState<{ type: 'success' | 'error'; message: string } | null>(null);
+
   useEffect(() => {
-    setAccounts(getStoredAccounts());
+    const loadedAccounts = getStoredAccounts();
+    
+    // Process OAuth Callback params if returning from Facebook OAuth flow
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const isFbConnected = urlParams.get('facebook_connected') === 'true';
+      const fbError = urlParams.get('error');
+
+      if (fbError) {
+        setNotification({ type: 'error', message: `Facebook connection failed: ${fbError}` });
+        window.history.replaceState({}, '', window.location.pathname);
+      } else if (isFbConnected) {
+        const name = urlParams.get('name') || 'Facebook Page';
+        const handle = urlParams.get('handle') || '@facebook_page';
+        const avatar = urlParams.get('avatar') || '';
+        const followers = parseInt(urlParams.get('followers') || '24500', 10);
+
+        let fbFound = false;
+        const updated = loadedAccounts.map((acc) => {
+          if (acc.platform === 'facebook') {
+            fbFound = true;
+            return {
+              ...acc,
+              name,
+              handle,
+              connected: true,
+              connectedAt: new Date().toISOString(),
+              followerCount: followers,
+              avatarUrl: avatar || acc.avatarUrl
+            };
+          }
+          return acc;
+        });
+
+        if (!fbFound) {
+          updated.unshift({
+            id: `acc-fb-${Date.now()}`,
+            platform: 'facebook',
+            name,
+            handle,
+            avatarUrl: avatar || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
+            connected: true,
+            connectedAt: new Date().toISOString(),
+            followerCount: followers,
+            accountType: 'page'
+          });
+        }
+
+        setAccounts(updated);
+        saveStoredAccounts(updated);
+        setNotification({ type: 'success', message: `Successfully connected Facebook account "${name}"!` });
+        window.history.replaceState({}, '', window.location.pathname);
+        return;
+      }
+    }
+
+    setAccounts(loadedAccounts);
   }, []);
 
   const handleToggleConnect = (id: string) => {
@@ -114,6 +172,26 @@ export default function AccountsPage() {
           </button>
         </div>
       </div>
+
+      {/* Notification Banner */}
+      {notification && (
+        <div className={`p-4 rounded-2xl flex items-center justify-between text-xs font-semibold ${
+          notification.type === 'success'
+            ? 'bg-emerald-500/10 border border-emerald-500/20 text-emerald-600 dark:text-emerald-400'
+            : 'bg-rose-500/10 border border-rose-500/20 text-rose-600 dark:text-rose-400'
+        }`}>
+          <div className="flex items-center gap-2">
+            <CheckCircle2 className="w-4 h-4 shrink-0" />
+            <span>{notification.message}</span>
+          </div>
+          <button 
+            onClick={() => setNotification(null)}
+            className="p-1 hover:opacity-70 text-current"
+          >
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+      )}
 
       {/* Filter Tabs & Quick Info */}
       <div className="flex items-center justify-between flex-wrap gap-4">

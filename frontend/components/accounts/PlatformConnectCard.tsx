@@ -34,6 +34,13 @@ export function PlatformConnectCard({
   const config = PLATFORM_CONFIGS[account.platform];
 
   const handleConnectClick = () => {
+    if (account.platform === 'facebook' && !account.connected) {
+      setIsConnecting(true);
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+      window.location.href = `${backendUrl}/api/auth/facebook`;
+      return;
+    }
+
     if (account.connected) {
       setShowConfirmDisconnect(true);
     } else {
