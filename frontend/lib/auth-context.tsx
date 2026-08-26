@@ -154,6 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   const loginWithGoogle = async () => {
+    if (isLoading) return; // Prevent double-clicks
     setIsLoading(true);
     const activeClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || googleClientId || DEFAULT_CLIENT_ID;
 
@@ -197,7 +198,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem('sf_auth_user', JSON.stringify(authenticatedUser));
       router.push('/dashboard');
     } catch (err: any) {
-      console.error('Google Sign-In failed:', err);
+      console.error('Google Sign-In failed:', err?.message || err);
+      // Don't silently swallow — surface to user via alert if it's not a simple cancel
+      if (err?.message && !err.message.includes('cancelled') && !err.message.includes('already in progress')) {
+        alert(err.message);
+      }
     } finally {
       setIsLoading(false);
     }
