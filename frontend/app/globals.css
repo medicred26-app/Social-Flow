@@ -1,0 +1,120 @@
+@import "tailwindcss";
+
+/* Tailwind CSS v4 Class-based Dark Mode Variant */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --border-main: #e2e8f0;
+  --text-heading: #0f172a;
+  --text-body: #334155;
+  --text-muted: #64748b;
+  --scroll-track: #f1f5f9;
+  --scroll-thumb: #cbd5e1;
+}
+
+html.dark {
+  --bg-page: #020617;
+  --bg-surface: #0f172a;
+  --bg-card: #0f172a;
+  --border-main: #1e293b;
+  --text-heading: #f8fafc;
+  --text-body: #e2e8f0;
+  --text-muted: #94a3b8;
+  --scroll-track: #020617;
+  --scroll-thumb: #1e293b;
+}
+
+/* Explicit Body Theme Overrides */
+body {
+  background-color: var(--bg-page) !important;
+  color: var(--text-body) !important;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+html.dark body {
+  background-color: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Hide native mouse cursor completely on fine pointer devices (desktops/laptops) */
+@media (pointer: fine) {
+  html, body, a, button, input, select, textarea, [role="button"], label, summary, *, *::before, *::after {
+    cursor: none !important;
+  }
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scroll-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6366f1;
+  border-radius: 9999px;
+}
+
+/* Custom Pointing Effects for Sections, Cards, and Buttons */
+.interactive-section {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease, background-color 0.35s ease;
+}
+
+.interactive-section:hover {
+  transform: translateY(-5px) scale(1.005);
+  box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.2), 0 0 20px rgba(236, 72, 153, 0.1);
+  border-color: rgba(99, 102, 241, 0.5) !important;
+}
+
+.interactive-card {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.interactive-card:hover {
+  transform: translateY(-4px) scale(1.015);
+  box-shadow: 0 15px 30px -10px rgba(168, 85, 247, 0.25);
+  border-color: rgba(168, 85, 247, 0.4) !important;
+}
+
+.interactive-button, button, a[href] {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, filter 0.2s ease;
+}
+
+.interactive-button:hover, button:hover, a[href]:hover {
+  filter: brightness(1.08);
+}
+
+.interactive-button:active, button:active, a[href]:active {
+  transform: scale(0.96) !important;
+}
+
+/* Glowing Pulsing Border Effect */
+@keyframes borderPulse {
+  0%, 100% { border-color: rgba(99, 102, 241, 0.4); }
+  50% { border-color: rgba(236, 72, 153, 0.7); }
+}
+
+.animate-border-pulse {
+  animation: borderPulse 3s infinite ease-in-out;
+}
+
