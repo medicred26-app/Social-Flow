@@ -45,10 +45,10 @@ html.light body {
   color: #0f172a !important;
 }
 
-/* Hide native mouse cursor completely on fine pointer devices (desktops/laptops) */
+/* Custom cursor accent — keep native cursor visible for usability */
 @media (pointer: fine) {
-  html, body, a, button, input, select, textarea, [role="button"], label, summary, *, *::before, *::after {
-    cursor: none !important;
+  html, body {
+    cursor: default;
   }
 }
 
