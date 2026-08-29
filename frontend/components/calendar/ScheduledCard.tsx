@@ -46,7 +46,7 @@ export function ScheduledCard({ post, onDelete }: ScheduledCardProps) {
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/40 dark:hover:border-slate-700/80 rounded-2xl p-4 transition-all duration-200 shadow-sm dark:shadow-md group relative">
+    <div className="bg-white dark:bg-slate-900/90 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/40 dark:hover:border-slate-700/80 rounded-2xl p-4 transition-all duration-200 shadow-sm dark:shadow-md group relative interactive-card">
       <div className="flex items-center justify-between gap-2 mb-2.5">
         <div className="flex items-center gap-2">
           {post.targets.map((t) => {

@@ -8,6 +8,7 @@ export function CustomCursor() {
   const [isHovered, setIsHovered] = useState(false);
   const [isMouseDown, setIsMouseDown] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
+  const [hoverType, setHoverType] = useState<'clickable' | 'info' | 'default'>('default');
 
   useEffect(() => {
     setMounted(true);
@@ -23,10 +24,26 @@ export function CustomCursor() {
 
       const target = e.target as HTMLElement | null;
       if (target) {
+        // Detect clickable elements
         const isClickable = !!target.closest(
-          'a, button, input, select, textarea, [role="button"], label, .cursor-pointer, summary'
+          'a, button, input, select, textarea, [role="button"], label, .cursor-pointer, summary, [onClick]'
         );
-        setIsHovered(isClickable);
+
+        // Detect informational panels, cards, statistics, widgets, containers, navigation items
+        const isInfoPanel = !!target.closest(
+          '.interactive-card, .interactive-section, .interactive-stat-card, .interactive-panel, [data-interactive="true"], article, section, .card-hover, .stat-card, .nav-item'
+        );
+
+        if (isClickable) {
+          setIsHovered(true);
+          setHoverType('clickable');
+        } else if (isInfoPanel) {
+          setIsHovered(true);
+          setHoverType('info');
+        } else {
+          setIsHovered(false);
+          setHoverType('default');
+        }
       }
     };
 
@@ -67,22 +84,30 @@ export function CustomCursor() {
 
   if (!mounted || !isVisible) return null;
 
-  // Simple ring that follows cursor with a slight lag via CSS transition
-  const size = isHovered ? 40 : isMouseDown ? 20 : 28;
+  // Ring sizes based on interaction type
+  const size = hoverType === 'clickable' ? 44 : hoverType === 'info' ? 36 : isMouseDown ? 20 : 28;
   const offset = size / 2;
 
   return (
     <div className="pointer-events-none fixed inset-0 z-[999999] overflow-hidden select-none mix-blend-difference">
-      {/* Single subtle ring — doesn't interfere with native cursor */}
+      {/* Dynamic ring following cursor with smooth transition */}
       <div
         className="fixed top-0 left-0 rounded-full border transition-all duration-200 ease-out"
         style={{
           width: `${size}px`,
           height: `${size}px`,
-          borderColor: isHovered ? 'rgba(255,255,255,0.9)' : 'rgba(255,255,255,0.5)',
-          borderWidth: isHovered ? '2px' : '1.5px',
-          transform: `translate3d(${position.x - offset}px, ${position.y - offset}px, 0) scale(${isMouseDown ? 0.8 : 1})`,
-          backgroundColor: isHovered ? 'rgba(255,255,255,0.08)' : 'transparent',
+          borderColor: hoverType === 'clickable'
+            ? 'rgba(255,255,255,0.95)'
+            : hoverType === 'info'
+            ? 'rgba(255,255,255,0.75)'
+            : 'rgba(255,255,255,0.45)',
+          borderWidth: hoverType === 'clickable' ? '2px' : '1.5px',
+          transform: `translate3d(${position.x - offset}px, ${position.y - offset}px, 0) scale(${isMouseDown ? 0.82 : 1})`,
+          backgroundColor: hoverType === 'clickable'
+            ? 'rgba(255,255,255,0.12)'
+            : hoverType === 'info'
+            ? 'rgba(255,255,255,0.06)'
+            : 'transparent',
         }}
       />
     </div>

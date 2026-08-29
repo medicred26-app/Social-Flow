@@ -58,7 +58,7 @@ export function PlatformConnectCard({
   };
 
   return (
-    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/40 dark:hover:border-slate-700/80 rounded-3xl p-5 space-y-4 shadow-md dark:shadow-xl transition-all duration-200 group relative">
+    <div className="bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 hover:border-indigo-500/40 dark:hover:border-slate-700/80 rounded-3xl p-5 space-y-4 shadow-md dark:shadow-xl transition-all duration-200 group relative interactive-card">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <div 

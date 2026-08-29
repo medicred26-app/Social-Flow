@@ -43,12 +43,12 @@ export default function DashboardPage() {
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
       {/* Welcome Banner */}
-      <div className="relative rounded-3xl bg-gradient-to-r from-indigo-900/60 via-slate-900 to-purple-900/50 border border-indigo-500/20 p-6 md:p-8 overflow-hidden shadow-2xl">
+      <div className="relative rounded-3xl bg-gradient-to-r from-indigo-900/60 via-slate-900 to-purple-900/50 border border-indigo-500/20 p-6 md:p-8 overflow-hidden shadow-2xl interactive-section">
         <div className="absolute right-0 top-0 w-96 h-96 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="relative z-10 flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
           <div className="space-y-2">
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20 text-indigo-300 text-xs font-semibold">
-              <Sparkles className="w-3.5 h-3.5" /> SocialFlow Command Center
+              <Sparkles className="w-3.5 h-3.5 animate-pulse text-indigo-400" /> SocialFlow Command Center
             </div>
             <h1 className="text-2xl md:text-3xl font-extrabold text-white tracking-tight">
               Welcome back, {user?.name || 'Creator'}! 👋
@@ -61,7 +61,7 @@ export default function DashboardPage() {
           <div className="flex gap-3">
             <Link
               href="/compose"
-              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white rounded-2xl text-xs font-bold shadow-lg shadow-indigo-500/25 transition-all transform hover:-translate-y-0.5"
+              className="flex items-center gap-2 px-5 py-3 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white rounded-2xl text-xs font-bold shadow-lg shadow-indigo-500/25 transition-all transform hover:scale-105 active:scale-95"
             >
               <Plus className="w-4 h-4" />
               <span>Create New Post</span>
@@ -72,7 +72,7 @@ export default function DashboardPage() {
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm dark:shadow-lg space-y-2">
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm dark:shadow-lg space-y-2 interactive-stat-card">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-bold uppercase tracking-wider">Queued Posts</span>
             <div className="p-2 rounded-xl bg-indigo-500/10 text-indigo-600 dark:text-indigo-400">
@@ -85,7 +85,7 @@ export default function DashboardPage() {
           </p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm dark:shadow-lg space-y-2">
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm dark:shadow-lg space-y-2 interactive-stat-card">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-bold uppercase tracking-wider">Published Posts</span>
             <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
@@ -96,7 +96,7 @@ export default function DashboardPage() {
           <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium"> Across 4 active channels</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm dark:shadow-lg space-y-2">
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm dark:shadow-lg space-y-2 interactive-stat-card">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-bold uppercase tracking-wider">Connected Accounts</span>
             <div className="p-2 rounded-xl bg-purple-500/10 text-purple-600 dark:text-purple-400">
@@ -107,7 +107,7 @@ export default function DashboardPage() {
           <p className="text-[11px] text-indigo-600 dark:text-indigo-400 font-medium">OAuth tokens valid</p>
         </div>
 
-        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm dark:shadow-lg space-y-2">
+        <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm dark:shadow-lg space-y-2 interactive-stat-card">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
             <span className="text-xs font-bold uppercase tracking-wider">Est. Monthly Reach</span>
             <div className="p-2 rounded-xl bg-pink-500/10 text-pink-600 dark:text-pink-400">

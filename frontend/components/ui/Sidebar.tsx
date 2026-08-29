@@ -60,7 +60,7 @@ export function Sidebar() {
               <Link
                 key={item.href}
                 href={item.href}
-                className={`group flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                className={`group nav-item flex items-center justify-between px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 hover:scale-[1.01] ${
                   isActive
                     ? 'bg-indigo-500/10 dark:bg-indigo-600/15 text-indigo-600 dark:text-indigo-400 border border-indigo-500/20 dark:border-indigo-500/30 shadow-sm font-bold'
                     : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-slate-100 dark:hover:bg-slate-800/60'
@@ -86,10 +86,10 @@ export function Sidebar() {
       {/* Upgrade Banner & User Profile */}
       <div className="p-4 space-y-4 border-t border-slate-200 dark:border-slate-800/80">
         {/* Pro Plan Box */}
-        <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-gradient-to-br dark:from-indigo-950/60 dark:via-slate-900 dark:to-purple-950/40 border border-slate-200 dark:border-indigo-800/30 relative overflow-hidden group">
+        <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-gradient-to-br dark:from-indigo-950/60 dark:via-slate-900 dark:to-purple-950/40 border border-slate-200 dark:border-indigo-800/30 relative overflow-hidden group interactive-panel">
           <div className="absolute -right-4 -bottom-4 w-16 h-16 bg-indigo-500/10 rounded-full blur-xl group-hover:bg-indigo-500/20 transition-all" />
           <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-300 font-semibold text-xs mb-1">
-            <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
+            <Sparkles className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400 animate-pulse" />
             <span>Express Backend Connected</span>
           </div>
           <p className="text-[11px] text-slate-500 dark:text-slate-400 leading-relaxed mb-2.5">API Server on port 5000 with Google OAuth Client ID.</p>
@@ -100,7 +100,7 @@ export function Sidebar() {
 
         {/* User Card */}
         {user ? (
-          <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800">
+          <div className="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 dark:bg-slate-800/40 border border-slate-200 dark:border-slate-800 interactive-panel">
             <div className="flex items-center gap-2.5 min-w-0">
               <div className="relative flex-shrink-0">
                 <img
