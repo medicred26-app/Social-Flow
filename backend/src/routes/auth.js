@@ -154,95 +154,15 @@ router.post('/google', (req, res) => {
   });
 });
 
-// GET Initiates Facebook OAuth 2.0 Login
+// GET Initiates Facebook OAuth 2.0 Login (Forward to independent Facebook platform router)
 router.get('/facebook', (req, res) => {
-  const appId = process.env.META_APP_ID;
-  const redirectUri = process.env.META_REDIRECT_URI || 'http://localhost:5000/api/auth/facebook/callback';
-  const scope = 'public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts';
-
-  if (!appId) {
-    return res.status(500).json({ 
-      success: false, 
-      message: 'META_APP_ID is not configured in backend .env' 
-    });
-  }
-
-  const authUrl = `https://www.facebook.com/v19.0/dialog/oauth?client_id=${encodeURIComponent(appId)}&redirect_uri=${encodeURIComponent(redirectUri)}&scope=${encodeURIComponent(scope)}&response_type=code`;
-  return res.redirect(authUrl);
+  res.redirect('/api/platforms/facebook/oauth');
 });
 
-// GET Facebook OAuth 2.0 Callback Handler
-router.get('/facebook/callback', async (req, res) => {
-  const { code, error, error_description } = req.query;
-  const frontendUrl = process.env.FRONTEND_URL || 'http://localhost:4000';
-
-  if (error) {
-    console.error('[Facebook OAuth Callback Error]', error, error_description);
-    return res.redirect(`${frontendUrl}/accounts?error=${encodeURIComponent(error_description || error)}`);
-  }
-
-  if (!code) {
-    return res.redirect(`${frontendUrl}/accounts?error=${encodeURIComponent('No authorization code received from Facebook')}`);
-  }
-
-  try {
-    const appId = process.env.META_APP_ID;
-    const appSecret = process.env.META_APP_SECRET;
-    const redirectUri = process.env.META_REDIRECT_URI || 'http://localhost:5000/api/auth/facebook/callback';
-
-    // 1. Exchange authorization code for User Access Token via official Meta API
-    const tokenParams = new URLSearchParams({
-      client_id: appId,
-      client_secret: appSecret,
-      redirect_uri: redirectUri,
-      code: code
-    });
-
-    const tokenResponse = await fetch(`https://graph.facebook.com/v19.0/oauth/access_token?${tokenParams.toString()}`);
-    const tokenData = await tokenResponse.json();
-
-    if (tokenData.error) {
-      console.error('[Facebook Token Exchange Error]', tokenData.error);
-      return res.redirect(`${frontendUrl}/accounts?error=${encodeURIComponent(tokenData.error.message || 'Token exchange failed')}`);
-    }
-
-    const accessToken = tokenData.access_token;
-
-    // 2. Fetch User Profile from Meta Graph API
-    const profileResponse = await fetch(`https://graph.facebook.com/v19.0/me?fields=id,name,email,picture.type(large)&access_token=${encodeURIComponent(accessToken)}`);
-    const profileData = await profileResponse.json();
-
-    // 3. Fetch User Facebook Pages (if available) from Meta Graph API
-    let pages = [];
-    try {
-      const pagesResponse = await fetch(`https://graph.facebook.com/v19.0/me/accounts?access_token=${encodeURIComponent(accessToken)}`);
-      const pagesData = await pagesResponse.json();
-      if (pagesData.data) {
-        pages = pagesData.data;
-      }
-    } catch (err) {
-      console.warn('[Facebook Pages Fetch Warning]', err);
-    }
-
-    const accountName = pages.length > 0 ? pages[0].name : (profileData.name || 'Facebook Official');
-    const handle = `@${accountName.toLowerCase().replace(/[^a-z0-9._]/g, '')}`;
-    const avatarUrl = profileData.picture?.data?.url || `https://graph.facebook.com/v19.0/${profileData.id}/picture?type=large`;
-    const followerCount = pages.length > 0 && pages[0].fan_count ? pages[0].fan_count : 24500;
-
-    // Pass result back to frontend
-    const redirectParams = new URLSearchParams({
-      facebook_connected: 'true',
-      name: accountName,
-      handle: handle,
-      avatar: avatarUrl,
-      followers: followerCount.toString()
-    });
-
-    return res.redirect(`${frontendUrl}/accounts?${redirectParams.toString()}`);
-  } catch (err) {
-    console.error('[Facebook OAuth Callback Exception]', err);
-    return res.redirect(`${frontendUrl}/accounts?error=${encodeURIComponent(err.message || 'Facebook authentication failed')}`);
-  }
+// GET Facebook OAuth 2.0 Callback Handler (Forward to independent Facebook platform router)
+router.get('/facebook/callback', (req, res) => {
+  const query = new URLSearchParams(req.query).toString();
+  res.redirect(`/api/platforms/facebook/oauth/callback?${query}`);
 });
 
 export default router;

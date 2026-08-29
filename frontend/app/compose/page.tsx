@@ -9,11 +9,7 @@ import { CaptionBox } from '@/components/compose/CaptionBox';
 import { MediaUploader } from '@/components/compose/MediaUploader';
 import { LivePreviewCard } from '@/components/compose/LivePreviewCard';
 import { SchedulePicker } from '@/components/compose/SchedulePicker';
-import { publishToFacebook } from '@/lib/platforms/facebook';
-import { publishToInstagram } from '@/lib/platforms/instagram';
-import { publishToX } from '@/lib/platforms/x';
-import { publishToLinkedIn } from '@/lib/platforms/linkedin';
-import { publishToYouTube } from '@/lib/platforms/youtube';
+import { platformRegistry } from '@/lib/platforms';
 import { PenSquare, CheckCircle2, AlertCircle } from 'lucide-react';
 import { format, addDays } from 'date-fns';
 
@@ -73,19 +69,27 @@ export default function ComposePage() {
     }));
 
     if (isImmediate) {
-      // Trigger platform API modules
+      // Trigger independent platform adapter services with fault isolation
+      const mediaUrls = media.map(m => m.url);
       for (const target of postTargets) {
-        const mediaUrls = media.map(m => m.url);
-        if (target.platform === 'facebook') {
-          await publishToFacebook('mock_token', target.accountId, caption, mediaUrls);
-        } else if (target.platform === 'instagram') {
-          await publishToInstagram('mock_token', target.accountId, caption, mediaUrls[0] || '');
-        } else if (target.platform === 'x') {
-          await publishToX('mock_token', caption);
-        } else if (target.platform === 'linkedin') {
-          await publishToLinkedIn('mock_token', 'urn:li:person:123', caption);
-        } else if (target.platform === 'youtube') {
-          await publishToYouTube('mock_token', caption.substring(0, 50), caption);
+        try {
+          const adapter = platformRegistry.getAdapter(target.platform);
+          const res = await adapter.publish({
+            caption,
+            mediaUrls,
+            accountId: target.accountId
+          });
+          if (res.success && res.platformPostId) {
+            target.platformPostId = res.platformPostId;
+            target.status = 'published';
+          } else if (!res.success) {
+            target.status = 'failed';
+            target.error = res.error;
+          }
+        } catch (err: any) {
+          // Failure on one platform does NOT affect other platforms
+          target.status = 'failed';
+          target.error = err.message || `Outage on ${target.platform}`;
         }
       }
     }

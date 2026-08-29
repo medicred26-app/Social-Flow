@@ -1,8 +1,3 @@
-/**
- * SocialFlow - Firebase Cloud Function Worker
- * Triggers every minute to publish queued posts across social platforms.
- */
-
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 admin.initializeApp();

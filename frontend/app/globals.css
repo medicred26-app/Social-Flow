@@ -45,13 +45,6 @@ html.light body {
   color: #0f172a !important;
 }
 
-/* Custom cursor accent — keep native cursor visible for usability */
-@media (pointer: fine) {
-  html, body {
-    cursor: default;
-  }
-}
-
 /* Custom Sleek Scrollbar */
 ::-webkit-scrollbar {
   width: 7px;

@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { platformRegistry } from '../services/platform.registry.js';
 
 const router = Router();
 
@@ -46,6 +47,30 @@ router.get('/', (req, res) => {
     success: true,
     count: result.length,
     posts: result
+  });
+});
+
+// POST Publish immediately across selected independent platform services
+router.post('/publish-now', async (req, res) => {
+  const { caption, targets, mediaUrls = [] } = req.body;
+
+  if (!caption || !targets || targets.length === 0) {
+    return res.status(400).json({
+      success: false,
+      message: 'Caption and at least one target platform are required.'
+    });
+  }
+
+  const results = await platformRegistry.publishToTargets(targets, caption, mediaUrls);
+
+  const overallSuccess = results.some(r => r.success);
+
+  return res.json({
+    success: overallSuccess,
+    message: overallSuccess
+      ? 'Post published across independent platform services.'
+      : 'Failed to publish post across platforms.',
+    results
   });
 });
 

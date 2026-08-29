@@ -34,19 +34,34 @@ export function CustomCursor() {
     const onMouseUp = () => setIsMouseDown(false);
     const onMouseLeave = () => setIsVisible(false);
     const onMouseEnter = () => setIsVisible(true);
+    const onWindowBlur = () => setIsVisible(false);
+    const onWindowFocus = () => setIsVisible(true);
+    const onVisibilityChange = () => {
+      if (document.hidden) {
+        setIsVisible(false);
+      } else {
+        setIsVisible(true);
+      }
+    };
 
     window.addEventListener('mousemove', onMouseMove, { passive: true });
     window.addEventListener('mousedown', onMouseDown, { passive: true });
     window.addEventListener('mouseup', onMouseUp, { passive: true });
+    window.addEventListener('blur', onWindowBlur);
+    window.addEventListener('focus', onWindowFocus);
     document.addEventListener('mouseleave', onMouseLeave);
     document.addEventListener('mouseenter', onMouseEnter);
+    document.addEventListener('visibilitychange', onVisibilityChange);
 
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
       window.removeEventListener('mousedown', onMouseDown);
       window.removeEventListener('mouseup', onMouseUp);
+      window.removeEventListener('blur', onWindowBlur);
+      window.removeEventListener('focus', onWindowFocus);
       document.removeEventListener('mouseleave', onMouseLeave);
       document.removeEventListener('mouseenter', onMouseEnter);
+      document.removeEventListener('visibilitychange', onVisibilityChange);
     };
   }, []);
 

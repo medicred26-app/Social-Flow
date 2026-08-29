@@ -5,6 +5,11 @@ import authRoutes from './routes/auth.js';
 import postsRoutes from './routes/posts.js';
 import accountsRoutes from './routes/accounts.js';
 import analyticsRoutes from './routes/analytics.js';
+import facebookRouter from './platforms/facebook/facebook.router.js';
+import instagramRouter from './platforms/instagram/instagram.router.js';
+import youtubeRouter from './platforms/youtube/youtube.router.js';
+import xRouter from './platforms/x/x.router.js';
+import linkedinRouter from './platforms/linkedin/linkedin.router.js';
 
 dotenv.config();
 
@@ -30,17 +35,25 @@ app.get('/api/health', (req, res) => {
   res.json({
     status: 'online',
     service: 'SocialFlow Backend API Server',
-    version: '1.0.0',
+    version: '2.0.0 (Modular Multi-Platform Architecture)',
     timestamp: new Date().toISOString(),
+    platforms: ['facebook', 'instagram', 'youtube', 'x', 'linkedin'],
     googleOauthConfigured: !!process.env.GOOGLE_CLIENT_ID
   });
 });
 
-// Routes
+// Generic Auth and API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/posts', postsRoutes);
 app.use('/api/accounts', accountsRoutes);
 app.use('/api/analytics', analyticsRoutes);
+
+// Independent Platform Routes
+app.use('/api/platforms/facebook', facebookRouter);
+app.use('/api/platforms/instagram', instagramRouter);
+app.use('/api/platforms/youtube', youtubeRouter);
+app.use('/api/platforms/x', xRouter);
+app.use('/api/platforms/linkedin', linkedinRouter);
 
 // Fallback 404 handler
 app.use((req, res) => {

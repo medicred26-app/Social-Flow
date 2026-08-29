@@ -18,7 +18,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   // Public Landing Page, Login, or Signup
   if (isPublicPage) {
     return (
-      <div className="min-h-screen w-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200">
+      <div className="min-h-screen w-full flex flex-col bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-200" suppressHydrationWarning>
         <CustomCursor />
         {children}
       </div>
