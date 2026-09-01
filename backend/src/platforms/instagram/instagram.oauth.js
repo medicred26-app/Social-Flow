@@ -4,13 +4,8 @@ export function buildInstagramAuthUrl() {
   if (!INSTAGRAM_CONFIG.appId) {
     throw new Error('INSTAGRAM_APP_ID environment variable is missing.');
   }
-  const params = new URLSearchParams({
-    client_id: INSTAGRAM_CONFIG.appId,
-    redirect_uri: INSTAGRAM_CONFIG.redirectUri,
-    scope: INSTAGRAM_CONFIG.defaultScope,
-    response_type: 'code'
-  });
-  return `${INSTAGRAM_CONFIG.oauthDialogUrl}?${params.toString()}`;
+  const scope = INSTAGRAM_CONFIG.defaultScope;
+  return `${INSTAGRAM_CONFIG.oauthDialogUrl}?client_id=${encodeURIComponent(INSTAGRAM_CONFIG.appId)}&redirect_uri=${encodeURIComponent(INSTAGRAM_CONFIG.redirectUri)}&scope=${scope}&response_type=code`;
 }
 
 export async function exchangeInstagramCodeForToken(code) {

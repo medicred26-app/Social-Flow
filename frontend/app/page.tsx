@@ -172,20 +172,42 @@ export default function PublicLandingPage() {
         </p>
 
         <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
-          <Link
-            href="/signup"
-            className="px-6 py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all inline-flex items-center gap-2"
-          >
-            <span>Create Free Account</span>
-            <ArrowRight className="w-4 h-4" />
-          </Link>
-          <Link
-            href="/login"
-            className="px-6 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors inline-flex items-center gap-2"
-          >
-            <Key className="w-4 h-4 text-indigo-500" />
-            <span>Sign In with Google</span>
-          </Link>
+          {user ? (
+            <>
+              <Link
+                href="/dashboard"
+                className="px-6 py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all inline-flex items-center gap-2"
+              >
+                <LayoutGrid className="w-4 h-4" />
+                <span>Go to Workspace Dashboard</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/compose"
+                className="px-6 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors inline-flex items-center gap-2"
+              >
+                <Sparkles className="w-4 h-4 text-indigo-500" />
+                <span>Create New Post</span>
+              </Link>
+            </>
+          ) : (
+            <>
+              <Link
+                href="/signup"
+                className="px-6 py-3.5 bg-gradient-to-r from-indigo-600 via-purple-600 to-pink-600 hover:opacity-95 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-500/25 transition-all inline-flex items-center gap-2"
+              >
+                <span>Create Free Account</span>
+                <ArrowRight className="w-4 h-4" />
+              </Link>
+              <Link
+                href="/login"
+                className="px-6 py-3.5 bg-white dark:bg-slate-900 border border-slate-300 dark:border-slate-800 text-slate-800 dark:text-slate-200 text-xs font-semibold rounded-xl hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors inline-flex items-center gap-2"
+              >
+                <Key className="w-4 h-4 text-indigo-500" />
+                <span>Sign In with Google</span>
+              </Link>
+            </>
+          )}
         </div>
 
         {/* Platform Icons Badge */}
@@ -535,7 +557,11 @@ export default function PublicLandingPage() {
             <a href="#features" className="hover:underline">Features</a>
             <a href="#help" className="hover:underline">Help & FAQ</a>
             <a href="#contact" className="hover:underline">Contact</a>
-            <Link href="/login" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">Sign In</Link>
+            {user ? (
+              <Link href="/dashboard" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">Dashboard</Link>
+            ) : (
+              <Link href="/login" className="text-indigo-600 dark:text-indigo-400 font-semibold hover:underline">Sign In</Link>
+            )}
           </div>
         </div>
       </footer>
