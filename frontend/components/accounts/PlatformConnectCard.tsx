@@ -63,7 +63,9 @@ export function PlatformConnectCard({
             <h4 className="text-sm font-bold text-slate-900 dark:text-white tracking-tight flex items-center gap-1.5">
               {config.displayName}
             </h4>
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{account.handle || 'Not Connected'}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              {account.connected && account.handle ? account.handle : 'Not Connected'}
+            </p>
           </div>
         </div>
 
@@ -84,23 +86,27 @@ export function PlatformConnectCard({
       <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-slate-950/60 border border-slate-200 dark:border-slate-800/80 flex items-center justify-between text-xs text-slate-700 dark:text-slate-300">
         <div>
           <span className="text-[10px] uppercase text-slate-500 dark:text-slate-400 font-semibold block">Followers / Audience</span>
-          <span className="font-bold text-slate-900 dark:text-white">{account.followerCount ? account.followerCount.toLocaleString() : '—'}</span>
+          <span className="font-bold text-slate-900 dark:text-white">
+            {account.connected && account.followerCount ? account.followerCount.toLocaleString() : '—'}
+          </span>
         </div>
         <div>
           <span className="text-[10px] uppercase text-slate-500 dark:text-slate-400 font-semibold block">Account Type</span>
-          <span className="capitalize font-semibold text-indigo-600 dark:text-indigo-400">{account.accountType || 'Page'}</span>
+          <span className="capitalize font-semibold text-indigo-600 dark:text-indigo-400">
+            {account.connected && account.accountType ? account.accountType : 'Standard'}
+          </span>
         </div>
         <div>
           <span className="text-[10px] uppercase text-slate-500 dark:text-slate-400 font-semibold block">OAuth Scopes</span>
-          <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-            <ShieldCheck className="w-3 h-3" /> Granted
+          <span className={`font-semibold flex items-center gap-1 ${account.connected ? 'text-emerald-600 dark:text-emerald-400' : 'text-slate-400'}`}>
+            <ShieldCheck className="w-3 h-3" /> {account.connected ? 'Granted' : 'Not Granted'}
           </span>
         </div>
       </div>
 
       {/* Actions Row */}
-      <div className="flex items-center justify-between pt-1">
-        <div className="flex items-center gap-2">
+      <div className="flex items-center justify-between pt-1 flex-wrap gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           {/* Main Connect / Disconnect Button */}
           <button
             type="button"
@@ -128,14 +134,15 @@ export function PlatformConnectCard({
             </span>
           </button>
 
-          {/* Delete Account (Optional custom account cleanup) */}
+          {/* Delete Saved Credentials / Remove Account Data Action */}
           {onDeleteAccount && (
             <button
               onClick={() => onDeleteAccount(account.id)}
-              title="Remove Account"
-              className="p-2 rounded-xl text-slate-400 hover:text-rose-500 bg-slate-100 dark:bg-slate-800/40 hover:bg-slate-200 dark:hover:bg-slate-800 border border-slate-200 dark:border-slate-800 transition-colors"
+              title="Permanently remove stored OAuth credentials from Supabase & start fresh"
+              className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-semibold text-rose-600 dark:text-rose-400 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
+              <span>Delete Saved Credentials</span>
             </button>
           )}
         </div>

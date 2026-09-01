@@ -93,7 +93,7 @@ export default function DashboardPage() {
             </div>
           </div>
           <p className="text-2xl font-extrabold text-slate-900 dark:text-white">{publishedCount}</p>
-          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium"> Across 4 active channels</p>
+          <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium"> Across {activeAccountsCount} active channel{activeAccountsCount !== 1 ? 's' : ''}</p>
         </div>
 
         <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm dark:shadow-lg space-y-2 interactive-stat-card">
@@ -109,14 +109,16 @@ export default function DashboardPage() {
 
         <div className="bg-white dark:bg-slate-900/80 border border-slate-200 dark:border-slate-800 rounded-3xl p-5 shadow-sm dark:shadow-lg space-y-2 interactive-stat-card">
           <div className="flex items-center justify-between text-slate-500 dark:text-slate-400">
-            <span className="text-xs font-bold uppercase tracking-wider">Est. Monthly Reach</span>
+            <span className="text-xs font-bold uppercase tracking-wider">Est. Total Reach</span>
             <div className="p-2 rounded-xl bg-pink-500/10 text-pink-600 dark:text-pink-400">
               <TrendingUp className="w-4 h-4" />
             </div>
           </div>
-          <p className="text-2xl font-extrabold text-slate-900 dark:text-white">98.8K</p>
+          <p className="text-2xl font-extrabold text-slate-900 dark:text-white">
+            {accounts.filter(a => a.connected).reduce((acc, a) => acc + (a.followerCount || 0), 0).toLocaleString()}
+          </p>
           <p className="text-[11px] text-emerald-600 dark:text-emerald-400 flex items-center gap-1 font-medium">
-            <ArrowUpRight className="w-3 h-3" /> +14.2% this week
+            <ArrowUpRight className="w-3 h-3" /> {activeAccountsCount > 0 ? 'Calculated from connected audience' : 'No active channels connected'}
           </p>
         </div>
       </div>

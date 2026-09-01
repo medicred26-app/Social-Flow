@@ -35,7 +35,7 @@ export function Sidebar() {
     <aside className="w-64 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-800 text-slate-800 dark:text-slate-200 flex flex-col justify-between h-screen sticky top-0 z-40 transition-colors duration-200">
       <div>
         {/* Brand Header */}
-        <div className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800/80 gap-3">
+        <Link href="/" title="Go to public home page" className="h-16 flex items-center px-6 border-b border-slate-200 dark:border-slate-800/80 gap-3 hover:opacity-90 transition-opacity">
           <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center shadow-lg shadow-indigo-500/25">
             <Zap className="w-5 h-5 text-white fill-white" />
           </div>
@@ -45,7 +45,7 @@ export function Sidebar() {
             </h1>
             <p className="text-[10px] text-slate-500 dark:text-slate-400 font-medium tracking-wide uppercase mt-0.5">Automation Suite</p>
           </div>
-        </div>
+        </Link>
 
         {/* Navigation Items */}
         <nav className="p-4 space-y-1.5">

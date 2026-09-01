@@ -1,4 +1,5 @@
 import { Router } from 'express';
+import { disconnectConnectedAccount, deleteConnectedAccount } from '../shared/utils/dbHelpers.js';
 
 const router = Router();
 
@@ -44,4 +45,17 @@ router.post('/connect', (req, res) => {
   res.status(201).json({ success: true, message: `Connected new ${platform} account.`, account: newAcc });
 });
 
+router.post('/disconnect', async (req, res) => {
+  const { platform, accountId } = req.body;
+  await disconnectConnectedAccount(platform, accountId);
+  res.json({ success: true, message: `Disconnected ${platform} account successfully.` });
+});
+
+router.post('/delete-credentials', async (req, res) => {
+  const { platform, accountId } = req.body;
+  await deleteConnectedAccount(platform, accountId);
+  res.json({ success: true, message: `Permanently deleted stored credentials for ${platform}.` });
+});
+
 export default router;
+

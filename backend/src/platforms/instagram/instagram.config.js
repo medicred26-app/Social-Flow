@@ -13,7 +13,7 @@ export const INSTAGRAM_CONFIG = {
   get redirectUri() {
     return process.env.INSTAGRAM_REDIRECT_URI || 'http://localhost:5000/api/platforms/instagram/oauth/callback';
   },
-  defaultScope: process.env.INSTAGRAM_SCOPE || 'instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement',
+  defaultScope: process.env.INSTAGRAM_SCOPE || 'public_profile,instagram_basic,instagram_content_publish,pages_show_list,pages_read_engagement',
   maxCaptionLength: 2200,
   maxHashtags: 30,
   supportedMedia: ['image', 'video']

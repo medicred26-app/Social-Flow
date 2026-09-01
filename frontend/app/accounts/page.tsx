@@ -133,20 +133,57 @@ export default function AccountsPage() {
   }, []);
 
   const handleToggleConnect = (id: string) => {
+    const target = accounts.find(a => a.id === id);
+    const isDisconnecting = target?.connected;
+
     const updated = accounts.map((acc) => {
       if (acc.id === id) {
-        return { ...acc, connected: !acc.connected };
+        const nextConnected = !acc.connected;
+        if (!nextConnected) {
+          // Immediately clear displayed handle/avatar/followers on disconnection (Req 1)
+          return {
+            ...acc,
+            connected: false,
+            handle: '',
+            name: `${acc.platform.toUpperCase()} Account`,
+            avatarUrl: '',
+            followerCount: 0
+          };
+        }
+        return { ...acc, connected: true };
       }
       return acc;
     });
+
     setAccounts(updated);
     saveStoredAccounts(updated);
+
+    if (isDisconnecting && target) {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+      fetch(`${backendUrl}/api/accounts/disconnect`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platform: target.platform, accountId: target.id })
+      }).catch(err => console.warn('Disconnect sync warning:', err));
+    }
   };
 
   const handleDeleteAccount = (id: string) => {
+    const target = accounts.find(a => a.id === id);
     const updated = accounts.filter(acc => acc.id !== id);
     setAccounts(updated);
     saveStoredAccounts(updated);
+
+    if (target) {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+      fetch(`${backendUrl}/api/accounts/delete-credentials`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ platform: target.platform, accountId: target.id })
+      }).catch(err => console.warn('Delete credentials sync warning:', err));
+      
+      setNotification({ type: 'success', message: `Permanently deleted saved credentials for ${target.platform}. Connecting again will start a fresh OAuth flow.` });
+    }
   };
 
   const handleAddCustomAccount = (e: React.FormEvent) => {

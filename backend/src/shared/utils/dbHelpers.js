@@ -1,4 +1,5 @@
 // Shared persistence helper for users & connected social accounts
+import { supabase } from './supabase.js';
 
 const usersDb = [
   {
@@ -27,17 +28,90 @@ export function saveUser(user) {
   return user;
 }
 
-export function saveConnectedAccount(platform, accountData) {
-  connectedAccountsDb.set(`${platform}_${accountData.id || accountData.handle}`, {
+export async function saveConnectedAccount(platform, accountData) {
+  const key = `${platform}_${accountData.id || accountData.handle}`;
+  const record = {
     ...accountData,
     platform,
     updatedAt: new Date().toISOString()
-  });
-  return connectedAccountsDb.get(`${platform}_${accountData.id || accountData.handle}`);
+  };
+
+  connectedAccountsDb.set(key, record);
+
+  try {
+    if (supabase) {
+      await supabase.from('social_accounts').upsert({
+        account_key: key,
+        platform,
+        account_id: accountData.id || '',
+        name: accountData.name || '',
+        handle: accountData.handle || '',
+        avatar: accountData.avatar || '',
+        followers: accountData.followers || 0,
+        access_token: accountData.accessToken || '',
+        status: accountData.status || 'connected',
+        updated_at: record.updatedAt
+      }, { onConflict: 'account_key' });
+    }
+  } catch (err) {
+    console.warn('[Supabase Sync] Warning: Could not persist social_accounts to Supabase table, using memory fallback:', err.message);
+  }
+
+  return record;
 }
 
 export function getConnectedAccounts(platform = null) {
   const accounts = Array.from(connectedAccountsDb.values());
   if (!platform) return accounts;
   return accounts.filter(a => a.platform === platform);
+}
+
+export async function disconnectConnectedAccount(platform, accountId) {
+  const keyPattern = accountId ? `${platform}_${accountId}` : null;
+  for (const [key, acc] of connectedAccountsDb.entries()) {
+    if (acc.platform === platform && (!keyPattern || key === keyPattern)) {
+      connectedAccountsDb.set(key, {
+        ...acc,
+        status: 'disconnected',
+        handle: '',
+        name: '',
+        avatar: '',
+        followers: 0,
+        updatedAt: new Date().toISOString()
+      });
+    }
+  }
+
+  try {
+    if (supabase) {
+      await supabase.from('social_accounts')
+        .update({ status: 'disconnected', updated_at: new Date().toISOString() })
+        .eq('platform', platform);
+    }
+  } catch (err) {
+    console.warn('[Supabase Sync] Warning: Could not update disconnect status in Supabase:', err.message);
+  }
+
+  return { success: true };
+}
+
+export async function deleteConnectedAccount(platform, accountId) {
+  const keyPattern = accountId ? `${platform}_${accountId}` : null;
+  for (const [key, acc] of connectedAccountsDb.entries()) {
+    if (acc.platform === platform && (!keyPattern || key === keyPattern)) {
+      connectedAccountsDb.delete(key);
+    }
+  }
+
+  try {
+    if (supabase) {
+      const query = supabase.from('social_accounts').delete().eq('platform', platform);
+      if (accountId) query.eq('account_id', accountId);
+      await query;
+    }
+  } catch (err) {
+    console.warn('[Supabase Sync] Warning: Could not delete account credentials from Supabase:', err.message);
+  }
+
+  return { success: true };
 }
