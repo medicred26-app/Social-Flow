@@ -55,6 +55,13 @@ app.use('/api/platforms/youtube', youtubeRouter);
 app.use('/api/platforms/x', xRouter);
 app.use('/api/platforms/linkedin', linkedinRouter);
 
+// Direct Root Auth Callbacks (e.g. /auth/youtube/callback)
+app.get('/auth/youtube', (req, res) => res.redirect('/api/platforms/youtube/oauth'));
+app.get('/auth/youtube/callback', (req, res) => {
+  const query = new URLSearchParams(req.query).toString();
+  res.redirect(`/api/platforms/youtube/oauth/callback?${query}`);
+});
+
 // Fallback 404 handler
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found on SocialFlow backend API server.' });

@@ -13,5 +13,5 @@ export const FACEBOOK_CONFIG = {
   get redirectUri() {
     return process.env.META_REDIRECT_URI || 'http://localhost:5000/api/platforms/facebook/oauth/callback';
   },
-  defaultScope: 'public_profile,email,pages_show_list,pages_read_engagement,pages_manage_posts'
+  defaultScope: process.env.META_SCOPE || 'public_profile'
 };

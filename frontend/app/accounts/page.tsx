@@ -36,16 +36,17 @@ export default function AccountsPage() {
     if (typeof window !== 'undefined') {
       const urlParams = new URLSearchParams(window.location.search);
       const isFbConnected = urlParams.get('facebook_connected') === 'true';
-      const fbError = urlParams.get('error');
+      const isYtConnected = urlParams.get('youtube_connected') === 'true';
+      const oauthError = urlParams.get('error');
 
-      if (fbError) {
-        setNotification({ type: 'error', message: `Facebook connection failed: ${fbError}` });
+      if (oauthError) {
+        setNotification({ type: 'error', message: `OAuth connection failed: ${oauthError}` });
         window.history.replaceState({}, '', window.location.pathname);
       } else if (isFbConnected) {
         const name = urlParams.get('name') || 'Facebook Page';
         const handle = urlParams.get('handle') || '@facebook_page';
         const avatar = urlParams.get('avatar') || '';
-        const followers = parseInt(urlParams.get('followers') || '24500', 10);
+        const followers = parseInt(urlParams.get('followers') || '0', 10);
 
         let fbFound = false;
         const updated = loadedAccounts.map((acc) => {
@@ -81,6 +82,48 @@ export default function AccountsPage() {
         setAccounts(updated);
         saveStoredAccounts(updated);
         setNotification({ type: 'success', message: `Successfully connected Facebook account "${name}"!` });
+        window.history.replaceState({}, '', window.location.pathname);
+        return;
+      } else if (isYtConnected) {
+        const name = urlParams.get('name') || 'YouTube Channel';
+        const handle = urlParams.get('handle') || '@YouTubeChannel';
+        const avatar = urlParams.get('avatar') || '';
+        const followers = parseInt(urlParams.get('followers') || '0', 10);
+
+        let ytFound = false;
+        const updated = loadedAccounts.map((acc) => {
+          if (acc.platform === 'youtube') {
+            ytFound = true;
+            return {
+              ...acc,
+              name,
+              handle,
+              connected: true,
+              connectedAt: new Date().toISOString(),
+              followerCount: followers,
+              avatarUrl: avatar || acc.avatarUrl
+            };
+          }
+          return acc;
+        });
+
+        if (!ytFound) {
+          updated.unshift({
+            id: `acc-yt-${Date.now()}`,
+            platform: 'youtube',
+            name,
+            handle,
+            avatarUrl: avatar || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
+            connected: true,
+            connectedAt: new Date().toISOString(),
+            followerCount: followers,
+            accountType: 'channel'
+          });
+        }
+
+        setAccounts(updated);
+        saveStoredAccounts(updated);
+        setNotification({ type: 'success', message: `Successfully connected YouTube channel "${name}"!` });
         window.history.replaceState({}, '', window.location.pathname);
         return;
       }

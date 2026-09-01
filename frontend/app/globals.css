@@ -159,3 +159,41 @@ html.light body {
 .animate-border-pulse {
   animation: borderPulse 3.5s infinite ease-in-out;
 }
+
+/* Printable PDF Report Styles */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+  
+  /* Hide non-report layout elements */
+  nav, header, aside, .no-print {
+    display: none !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .bg-slate-900, .bg-slate-950 {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  .text-white {
+    color: #0f172a !important;
+  }
+
+  .text-slate-400, .text-slate-300 {
+    color: #475569 !important;
+  }
+}
+

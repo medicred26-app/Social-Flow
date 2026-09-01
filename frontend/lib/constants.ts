@@ -47,12 +47,10 @@ export const INITIAL_MOCK_ACCOUNTS: SocialAccount[] = [
   {
     id: 'acc-fb-1',
     platform: 'facebook',
-    name: 'TechPulse Official',
-    handle: '@techpulse',
+    name: 'Facebook Page',
+    handle: '@FacebookPage',
     avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
-    connected: true,
-    connectedAt: '2026-01-15T10:00:00Z',
-    followerCount: 24500,
+    connected: false,
     accountType: 'page',
   },
   {

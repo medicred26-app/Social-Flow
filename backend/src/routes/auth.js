@@ -165,5 +165,16 @@ router.get('/facebook/callback', (req, res) => {
   res.redirect(`/api/platforms/facebook/oauth/callback?${query}`);
 });
 
+// GET Initiates YouTube OAuth 2.0 Login (Forward to independent YouTube platform router)
+router.get('/youtube', (req, res) => {
+  res.redirect('/api/platforms/youtube/oauth');
+});
+
+// GET YouTube OAuth 2.0 Callback Handler (Forward to independent YouTube platform router)
+router.get('/youtube/callback', (req, res) => {
+  const query = new URLSearchParams(req.query).toString();
+  res.redirect(`/api/platforms/youtube/oauth/callback?${query}`);
+});
+
 export default router;
 

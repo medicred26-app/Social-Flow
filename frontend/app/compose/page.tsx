@@ -62,16 +62,16 @@ export default function ComposePage() {
     setIsSubmitting(true);
     setNotification(null);
 
-    const postTargets: PostTarget[] = selectedAccounts.map(acc => ({
+    let postTargets: PostTarget[] = selectedAccounts.map(acc => ({
       platform: acc.platform,
       accountId: acc.id,
-      status: isImmediate ? 'published' : 'pending',
+      status: isImmediate ? 'pending' : 'pending',
     }));
 
     if (isImmediate) {
-      // Trigger independent platform adapter services with fault isolation
+      // Trigger independent platform adapter services concurrently with full fault isolation
       const mediaUrls = media.map(m => m.url);
-      for (const target of postTargets) {
+      const publishPromises = postTargets.map(async (target) => {
         try {
           const adapter = platformRegistry.getAdapter(target.platform);
           const res = await adapter.publish({
@@ -80,21 +80,46 @@ export default function ComposePage() {
             accountId: target.accountId
           });
           if (res.success && res.platformPostId) {
-            target.platformPostId = res.platformPostId;
-            target.status = 'published';
-          } else if (!res.success) {
-            target.status = 'failed';
-            target.error = res.error;
+            return {
+              ...target,
+              status: 'published' as const,
+              publishedAt: new Date().toISOString(),
+              platformPostId: res.platformPostId
+            };
+          } else {
+            return {
+              ...target,
+              status: 'failed' as const,
+              error: res.error || `Publish failed on ${target.platform}`
+            };
           }
         } catch (err: any) {
           // Failure on one platform does NOT affect other platforms
-          target.status = 'failed';
-          target.error = err.message || `Outage on ${target.platform}`;
+          return {
+            ...target,
+            status: 'failed' as const,
+            error: err.message || `Outage on ${target.platform}`
+          };
         }
-      }
+      });
+
+      const settled = await Promise.allSettled(publishPromises);
+      postTargets = settled.map((item, idx) => {
+        if (item.status === 'fulfilled') return item.value;
+        return {
+          ...postTargets[idx],
+          status: 'failed' as const,
+          error: 'Platform execution failed'
+        };
+      });
     }
 
     const scheduledIso = new Date(`${scheduledDate}T${scheduledTime}:00`).toISOString();
+
+    const successCount = postTargets.filter(t => t.status === 'published').length;
+    const overallStatus = isImmediate
+      ? (successCount === postTargets.length ? 'published' : (successCount > 0 ? 'partially_failed' : 'failed'))
+      : 'scheduled';
 
     const newPost: Post = {
       id: `post-${Date.now()}`,
@@ -102,7 +127,7 @@ export default function ComposePage() {
       media,
       targets: postTargets,
       scheduledFor: isImmediate ? new Date().toISOString() : scheduledIso,
-      status: isImmediate ? 'published' : 'scheduled',
+      status: overallStatus as any,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
       userId: 'user-demo',
@@ -113,16 +138,26 @@ export default function ComposePage() {
     saveStoredPosts(updatedPosts);
 
     setIsSubmitting(false);
+
+    let notifMessage = `📅 Post scheduled for ${scheduledDate} at ${scheduledTime}!`;
+    if (isImmediate) {
+      if (overallStatus === 'published') {
+        notifMessage = '🚀 Post published successfully across all selected channels!';
+      } else if (overallStatus === 'partially_failed') {
+        notifMessage = `⚠️ Post partially published (${successCount}/${postTargets.length} channels succeeded). Unaffected channels published cleanly.`;
+      } else {
+        notifMessage = '❌ Failed to publish post on selected channels. Please check platform connections.';
+      }
+    }
+
     setNotification({
-      type: 'success',
-      message: isImmediate
-        ? '🚀 Post published successfully across all selected channels!'
-        : `📅 Post scheduled for ${scheduledDate} at ${scheduledTime}!`,
+      type: overallStatus === 'failed' ? 'error' : 'success',
+      message: notifMessage,
     });
 
     setTimeout(() => {
       router.push('/dashboard');
-    }, 1200);
+    }, 1500);
   };
 
   return (

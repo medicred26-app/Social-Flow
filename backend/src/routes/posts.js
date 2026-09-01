@@ -63,14 +63,40 @@ router.post('/publish-now', async (req, res) => {
 
   const results = await platformRegistry.publishToTargets(targets, caption, mediaUrls);
 
-  const overallSuccess = results.some(r => r.success);
+  const resultMap = new Map(results.map(r => [r.platform, r]));
+  const updatedTargets = targets.map(t => {
+    const resItem = resultMap.get(t.platform);
+    if (resItem && resItem.success) {
+      return { ...t, status: 'published', publishedAt: new Date().toISOString(), platformPostId: resItem.platformPostId };
+    }
+    return { ...t, status: 'failed', error: resItem?.error || 'Platform dispatch failed' };
+  });
+
+  const successCount = updatedTargets.filter(t => t.status === 'published').length;
+  const overallSuccess = successCount > 0;
+  const overallStatus = successCount === updatedTargets.length ? 'published' : (successCount > 0 ? 'partially_failed' : 'failed');
+
+  const newPost = {
+    id: `post_${Date.now()}`,
+    caption,
+    targets: updatedTargets,
+    scheduledFor: new Date().toISOString(),
+    status: overallStatus,
+    mediaUrls,
+    createdAt: new Date().toISOString(),
+    updatedAt: new Date().toISOString()
+  };
+
+  postsQueue.unshift(newPost);
 
   return res.json({
     success: overallSuccess,
+    status: overallStatus,
     message: overallSuccess
-      ? 'Post published across independent platform services.'
+      ? (overallStatus === 'published' ? 'Post published across all independent platforms.' : 'Post partially published. Some platforms succeeded while others encountered errors.')
       : 'Failed to publish post across platforms.',
-    results
+    results,
+    post: newPost
   });
 });
 

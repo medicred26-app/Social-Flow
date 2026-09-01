@@ -27,18 +27,22 @@ export class FacebookService extends BasePlatformService {
       
       let pages = [];
       try {
-        const pagesData = await facebookApiClient.get('me/accounts', accessToken);
+        const pagesData = await facebookApiClient.get('me/accounts', accessToken, { fields: 'id,name,fan_count,followers_count,picture' });
         pages = pagesData.data || [];
       } catch (err) {
         logger.warn('Could not fetch Facebook pages list', { error: err.message });
       }
 
-      const accountName = pages.length > 0 ? pages[0].name : (profile.name || 'Facebook Official');
+      const accountName = pages.length > 0 ? pages[0].name : (profile.name || 'Facebook Account');
+      const followers = pages.length > 0 ? (pages[0].followers_count || pages[0].fan_count || 0) : 0;
+      const avatar = pages.length > 0 && pages[0].picture?.data?.url ? pages[0].picture.data.url : (profile.picture?.data?.url || `https://graph.facebook.com/v19.0/${profile.id}/picture?type=large`);
+
       const accountData = {
         id: pages.length > 0 ? pages[0].id : profile.id,
         name: accountName,
         handle: `@${accountName.toLowerCase().replace(/[^a-z0-9._]/g, '')}`,
-        avatar: profile.picture?.data?.url || `https://graph.facebook.com/v19.0/${profile.id}/picture?type=large`,
+        avatar,
+        followers,
         accessToken,
         status: 'connected'
       };

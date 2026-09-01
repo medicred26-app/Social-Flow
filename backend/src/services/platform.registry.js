@@ -34,10 +34,12 @@ export class PlatformRegistry {
    * Safely dispatches a multi-target post across platforms independently.
    * Isolates failures so an error on one platform will not prevent others from publishing.
    */
+  /**
+   * Safely dispatches a multi-target post across platforms concurrently and independently.
+   * Isolates failures completely so an error or outage on one platform will not delay or prevent others from publishing.
+   */
   async publishToTargets(targets, caption, mediaUrls = []) {
-    const results = [];
-
-    for (const target of targets) {
+    const promises = targets.map(async (target) => {
       const platformId = target.platform;
       try {
         const service = this.getService(platformId);
@@ -49,25 +51,35 @@ export class PlatformRegistry {
           mediaUrls
         });
 
-        results.push({
+        return {
           platform: platformId,
           accountId: target.accountId,
-          success: res.success,
-          platformPostId: res.platformPostId,
+          success: Boolean(res.success),
+          platformPostId: res.platformPostId || null,
           error: res.error || null
-        });
+        };
       } catch (err) {
         logger.error(`Isolated failure publishing to platform ${platformId}`, err);
-        results.push({
+        return {
           platform: platformId,
           accountId: target.accountId,
           success: false,
           error: err.message || `Outage/Error on platform ${platformId}`
-        });
+        };
       }
-    }
+    });
 
-    return results;
+    const settledResults = await Promise.allSettled(promises);
+    return settledResults.map(item => {
+      if (item.status === 'fulfilled') {
+        return item.value;
+      }
+      return {
+        platform: 'unknown',
+        success: false,
+        error: item.reason?.message || 'Platform dispatch failed'
+      };
+    });
   }
 }
 

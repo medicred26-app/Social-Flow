@@ -1,8 +1,9 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import { EngagementChart } from '@/components/analytics/EngagementChart';
-import { BarChart3, TrendingUp, Users, Heart, Share2, MousePointerClick, ArrowUpRight, Award } from 'lucide-react';
+import { BarChart3, TrendingUp, Users, Heart, Share2, MousePointerClick, ArrowUpRight, Award, Download, FileText, CheckCircle2 } from 'lucide-react';
+import { exportAnalyticsCSV, triggerPrintPDF } from '@/lib/analytics-export';
 
 const TOP_POSTS = [
   {
@@ -25,11 +26,51 @@ const TOP_POSTS = [
   },
 ];
 
+const METRICS_SUMMARY = {
+  totalImpressions: '29,220',
+  impressionsGrowth: '+18.4% vs last period',
+  avgEngagementRate: '7.8%',
+  engagementGrowth: '+2.1% higher than benchmark',
+  linkClicks: '2,890',
+  clicksGrowth: '+12.3% CTR boost',
+  audienceGrowth: '+1,420',
+  followersGrowth: 'New followers',
+};
+
 export default function AnalyticsPage() {
+  const [notification, setNotification] = useState<string | null>(null);
+
+  const handleExportCSV = () => {
+    exportAnalyticsCSV(METRICS_SUMMARY, TOP_POSTS);
+    setNotification('📊 Analytics report exported successfully as CSV file!');
+    setTimeout(() => setNotification(null), 3500);
+  };
+
+  const handleExportPDF = () => {
+    setNotification('📄 Preparing PDF Report. Printing dialog opening...');
+    setTimeout(() => {
+      triggerPrintPDF();
+      setNotification(null);
+    }, 400);
+  };
+
   return (
     <div className="space-y-8 animate-in fade-in duration-300">
-      {/* Title Header */}
-      <div className="flex items-center justify-between border-b border-slate-800 pb-4">
+      {/* Printable Report Header */}
+      <div className="hidden print-only text-slate-900 border-b border-slate-300 pb-4 mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-2xl font-black tracking-tight">SocialFlow Performance Report</h1>
+            <p className="text-xs text-slate-600">Executive Summary & Channel Metrics · Generated {new Date().toLocaleDateString()}</p>
+          </div>
+          <div className="text-right">
+            <span className="text-xs font-bold text-indigo-600">Confidential · Internal Report</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Title Header with Export Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4 no-print">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-gradient-to-tr from-blue-500 to-indigo-500 text-white rounded-2xl shadow-lg shadow-blue-500/20">
             <BarChart3 className="w-6 h-6" />
@@ -39,7 +80,36 @@ export default function AnalyticsPage() {
             <p className="text-xs text-slate-400">In-depth impression metrics, engagement rates, and top content insights</p>
           </div>
         </div>
+
+        {/* Action Export Buttons */}
+        <div className="flex items-center gap-3">
+          <button
+            type="button"
+            onClick={handleExportCSV}
+            className="flex items-center gap-2 px-4 py-2 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-slate-200 hover:text-white text-xs font-bold rounded-xl shadow-md transition-all transform hover:-translate-y-0.5"
+          >
+            <Download className="w-4 h-4 text-emerald-400" />
+            <span>Export CSV</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={handleExportPDF}
+            className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-indigo-500 via-purple-500 to-pink-500 hover:from-indigo-600 hover:to-pink-600 text-white text-xs font-bold rounded-xl shadow-lg shadow-indigo-500/20 transition-all transform hover:-translate-y-0.5"
+          >
+            <FileText className="w-4 h-4" />
+            <span>Download PDF Report</span>
+          </button>
+        </div>
       </div>
+
+      {/* Notification Toast Banner */}
+      {notification && (
+        <div className="no-print p-4 rounded-2xl bg-indigo-500/15 border border-indigo-500/30 text-indigo-300 text-xs font-semibold flex items-center gap-2 animate-in fade-in">
+          <CheckCircle2 className="w-4 h-4 text-indigo-400 shrink-0" />
+          <span>{notification}</span>
+        </div>
+      )}
 
       {/* Metrics Row */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">

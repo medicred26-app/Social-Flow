@@ -41,6 +41,13 @@ export function PlatformConnectCard({
       return;
     }
 
+    if (account.platform === 'youtube' && !account.connected) {
+      setIsConnecting(true);
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+      window.location.href = `${backendUrl}/auth/youtube`;
+      return;
+    }
+
     if (account.connected) {
       setShowConfirmDisconnect(true);
     } else {

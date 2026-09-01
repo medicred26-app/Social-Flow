@@ -30,9 +30,10 @@ router.get('/oauth/callback', async (req, res) => {
   if (result.success) {
     const redirectParams = new URLSearchParams({
       facebook_connected: 'true',
-      name: result.account.name,
-      handle: result.account.handle,
-      avatar: result.account.avatar
+      name: result.account.name || 'Facebook Account',
+      handle: result.account.handle || '@facebook',
+      avatar: result.account.avatar || '',
+      followers: (result.account.followers || 0).toString()
     });
     return res.redirect(`${frontendUrl}/accounts?${redirectParams.toString()}`);
   } else {

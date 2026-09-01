@@ -77,8 +77,12 @@ export function LivePreviewCard({ caption, media, selectedPlatforms }: LivePrevi
             </p>
 
             {media.length > 0 && (
-              <div className="rounded-2xl overflow-hidden border border-slate-800 max-h-64">
-                <img src={media[0].url} alt="Media" className="w-full h-full object-cover" />
+              <div className="rounded-2xl overflow-hidden border border-slate-800 max-h-64 bg-black">
+                {media[0].type === 'video' ? (
+                  <video src={media[0].url} controls className="w-full h-full object-cover max-h-64" />
+                ) : (
+                  <img src={media[0].url} alt="Media" className="w-full h-full object-cover max-h-64" />
+                )}
               </div>
             )}
 
@@ -113,10 +117,14 @@ export function LivePreviewCard({ caption, media, selectedPlatforms }: LivePrevi
 
             <div className="rounded-xl overflow-hidden bg-slate-950 aspect-square flex items-center justify-center border border-slate-800">
               {media.length > 0 ? (
-                <img src={media[0].url} alt="Media" className="w-full h-full object-cover" />
+                media[0].type === 'video' ? (
+                  <video src={media[0].url} controls className="w-full h-full object-cover" />
+                ) : (
+                  <img src={media[0].url} alt="Media" className="w-full h-full object-cover" />
+                )
               ) : (
                 <div className="text-center p-6 text-slate-500 text-xs">
-                  Upload an image to see full Instagram feed preview
+                  Upload an image or video to see full Instagram feed preview
                 </div>
               )}
             </div>
@@ -165,8 +173,12 @@ export function LivePreviewCard({ caption, media, selectedPlatforms }: LivePrevi
             </p>
 
             {media.length > 0 && (
-              <div className="rounded-xl overflow-hidden border border-slate-800 max-h-60">
-                <img src={media[0].url} alt="Media" className="w-full h-full object-cover" />
+              <div className="rounded-xl overflow-hidden border border-slate-800 max-h-60 bg-black">
+                {media[0].type === 'video' ? (
+                  <video src={media[0].url} controls className="w-full h-full object-cover max-h-60" />
+                ) : (
+                  <img src={media[0].url} alt="Media" className="w-full h-full object-cover max-h-60" />
+                )}
               </div>
             )}
 
@@ -188,7 +200,11 @@ export function LivePreviewCard({ caption, media, selectedPlatforms }: LivePrevi
           <div className="text-slate-100 font-sans space-y-3 bg-slate-900 rounded-2xl border border-slate-800 p-4">
             <div className="aspect-video bg-black rounded-xl overflow-hidden flex items-center justify-center border border-slate-800">
               {media.length > 0 ? (
-                <img src={media[0].url} alt="Media" className="w-full h-full object-cover" />
+                media[0].type === 'video' ? (
+                  <video src={media[0].url} controls className="w-full h-full object-cover" />
+                ) : (
+                  <img src={media[0].url} alt="Media" className="w-full h-full object-cover" />
+                )
               ) : (
                 <span className="text-xs text-slate-500">Video Thumbnail Preview</span>
               )}
