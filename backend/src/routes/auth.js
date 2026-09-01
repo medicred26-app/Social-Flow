@@ -159,7 +159,6 @@ router.get('/facebook', (req, res) => {
   res.redirect('/api/platforms/facebook/oauth');
 });
 
-// GET Facebook OAuth 2.0 Callback Handler (Forward to independent Facebook platform router)
 router.get('/facebook/callback', (req, res) => {
   const query = new URLSearchParams(req.query).toString();
   res.redirect(`/api/platforms/facebook/oauth/callback?${query}`);
@@ -170,10 +169,24 @@ router.get('/youtube', (req, res) => {
   res.redirect('/api/platforms/youtube/oauth');
 });
 
-// GET YouTube OAuth 2.0 Callback Handler (Forward to independent YouTube platform router)
 router.get('/youtube/callback', (req, res) => {
   const query = new URLSearchParams(req.query).toString();
   res.redirect(`/api/platforms/youtube/oauth/callback?${query}`);
+});
+
+// GET Initiates Instagram OAuth Login
+router.get('/instagram', (req, res) => {
+  res.redirect('/api/platforms/instagram/oauth');
+});
+
+// GET Initiates X (Twitter) OAuth Login
+router.get('/x', (req, res) => {
+  res.redirect('/api/platforms/x/oauth');
+});
+
+// GET Initiates LinkedIn OAuth Login
+router.get('/linkedin', (req, res) => {
+  res.redirect('/api/platforms/linkedin/oauth');
 });
 
 export default router;

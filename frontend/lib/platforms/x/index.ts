@@ -5,6 +5,10 @@ export class XAdapter implements PlatformAdapter {
   displayName = 'X (Twitter)';
 
   async connect(params?: any) {
+    if (typeof window !== 'undefined') {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+      window.location.href = `${backendUrl}/api/platforms/x/oauth`;
+    }
     return { success: true };
   }
 

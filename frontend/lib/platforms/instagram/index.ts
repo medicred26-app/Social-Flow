@@ -5,6 +5,10 @@ export class InstagramAdapter implements PlatformAdapter {
   displayName = 'Instagram Business';
 
   async connect(params?: any) {
+    if (typeof window !== 'undefined') {
+      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+      window.location.href = `${backendUrl}/api/platforms/instagram/oauth`;
+    }
     return { success: true };
   }
 

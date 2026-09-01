@@ -34,29 +34,14 @@ export function PlatformConnectCard({
   const config = PLATFORM_CONFIGS[account.platform];
 
   const handleConnectClick = () => {
-    if (account.platform === 'facebook' && !account.connected) {
+    if (!account.connected) {
       setIsConnecting(true);
       const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
-      window.location.href = `${backendUrl}/api/auth/facebook`;
+      window.location.href = `${backendUrl}/api/platforms/${account.platform}/oauth`;
       return;
     }
 
-    if (account.platform === 'youtube' && !account.connected) {
-      setIsConnecting(true);
-      const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
-      window.location.href = `${backendUrl}/auth/youtube`;
-      return;
-    }
-
-    if (account.connected) {
-      setShowConfirmDisconnect(true);
-    } else {
-      setIsConnecting(true);
-      setTimeout(() => {
-        onToggleConnect(account.id);
-        setIsConnecting(false);
-      }, 600);
-    }
+    setShowConfirmDisconnect(true);
   };
 
   const confirmDisconnect = () => {
