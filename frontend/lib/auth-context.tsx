@@ -2,7 +2,8 @@
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { triggerGoogleSignInPopup, signInWithFirebaseGoogle } from './google-auth';
+import type { User as SupabaseUser } from '@supabase/supabase-js';
+import { createClient } from '@/lib/supabase/client';
 
 export interface User {
   id: string;
@@ -16,204 +17,121 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   isLoading: boolean;
-  googleClientId: string;
-  setGoogleClientId: (id: string) => void;
   login: (email: string, pass: string) => Promise<{ success: boolean; message?: string }>;
   signup: (email: string, pass: string, name?: string) => Promise<{ success: boolean; message?: string }>;
-  loginWithGoogle: (customClientId?: string) => Promise<void>;
-  logout: () => void;
+  loginWithGoogle: () => Promise<void>;
+  resetPassword: (email: string) => Promise<{ success: boolean; message?: string }>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || 'http://localhost:5000';
+function mapUser(authUser: SupabaseUser | null): User | null {
+  if (!authUser) return null;
+  const meta = authUser.user_metadata || {};
+  const provider = authUser.app_metadata?.provider === 'google' ? 'google' : 'email';
+  return {
+    id: authUser.id,
+    email: authUser.email || '',
+    name: meta.name || meta.full_name || (authUser.email ? authUser.email.split('@')[0] : 'User'),
+    avatar: meta.avatar_url || meta.picture,
+    provider,
+  };
+}
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [token, setToken] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState<boolean>(true);
-  const DEFAULT_CLIENT_ID = '282450834667-746f0noc03gfpsqg5sc5edji9eoutilu.apps.googleusercontent.com';
-  const [googleClientId, setGoogleClientIdState] = useState<string>(
-    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || DEFAULT_CLIENT_ID
-  );
+  const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
+  const supabase = createClient();
 
   useEffect(() => {
-    // Restore session and stored Google Client ID
-    const storedToken = localStorage.getItem('sf_auth_token');
-    const storedUser = localStorage.getItem('sf_auth_user');
-    const storedClientId = localStorage.getItem('sf_google_client_id') || process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || DEFAULT_CLIENT_ID;
+    let mounted = true;
 
-    if (storedToken && storedUser) {
-      try {
-        setUser(JSON.parse(storedUser));
-        setToken(storedToken);
-      } catch (e) {
-        console.error('Failed to restore auth session:', e);
-        setUser(null);
-        setToken(null);
-      }
-    } else {
-      // Unauthenticated visitor
-      setUser(null);
-      setToken(null);
-    }
+    supabase.auth.getSession().then(({ data }) => {
+      if (!mounted) return;
+      setUser(mapUser(data.session?.user ?? null));
+      setToken(data.session?.access_token ?? null);
+      setIsLoading(false);
+    });
 
-    if (storedClientId) {
-      setGoogleClientIdState(storedClientId);
-    }
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(mapUser(session?.user ?? null));
+      setToken(session?.access_token ?? null);
+      setIsLoading(false);
+    });
 
-    setIsLoading(false);
-  }, []);
-
-  const setGoogleClientId = (id: string) => {
-    setGoogleClientIdState(id);
-    localStorage.setItem('sf_google_client_id', id);
-  };
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, [supabase]);
 
   const login = async (email: string, pass: string) => {
     setIsLoading(true);
-    try {
-      // Attempt backend API login
-      const res = await fetch(`${BACKEND_URL}/api/auth/login`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password: pass }),
-      });
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setUser(data.user);
-        setToken(data.token);
-        localStorage.setItem('sf_auth_token', data.token);
-        localStorage.setItem('sf_auth_user', JSON.stringify(data.user));
-        localStorage.removeItem('sf_explicit_logout');
-        setIsLoading(false);
-        return { success: true };
-      } else {
-        setIsLoading(false);
-        return { success: false, message: data.message || 'Login failed.' };
-      }
-    } catch (err: any) {
-      // Local fallback in case backend server is starting
-      const fallbackUser: User = {
-        id: `user_${Date.now()}`,
-        email,
-        name: email.split('@')[0],
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`,
-        provider: 'email'
-      };
-      setUser(fallbackUser);
-      setToken(`token_${Date.now()}`);
-      localStorage.setItem('sf_auth_token', `token_${Date.now()}`);
-      localStorage.setItem('sf_auth_user', JSON.stringify(fallbackUser));
-      localStorage.removeItem('sf_explicit_logout');
-      setIsLoading(false);
-      return { success: true };
+    const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
+    setIsLoading(false);
+    if (error) {
+      return { success: false, message: error.message };
     }
+    return { success: true };
   };
 
   const signup = async (email: string, pass: string, name?: string) => {
     setIsLoading(true);
-    try {
-      const res = await fetch(`${BACKEND_URL}/api/auth/signup`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password: pass, name }),
-      });
-      const data = await res.json();
-
-      if (res.ok && data.success) {
-        setUser(data.user);
-        setToken(data.token);
-        localStorage.setItem('sf_auth_token', data.token);
-        localStorage.setItem('sf_auth_user', JSON.stringify(data.user));
-        localStorage.removeItem('sf_explicit_logout');
-        setIsLoading(false);
-        return { success: true };
-      } else {
-        setIsLoading(false);
-        return { success: false, message: data.message || 'Signup failed.' };
-      }
-    } catch (err) {
-      const fallbackUser: User = {
-        id: `user_${Date.now()}`,
-        email,
-        name: name || email.split('@')[0],
-        avatar: `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(email)}`,
-        provider: 'email'
-      };
-      setUser(fallbackUser);
-      setToken(`token_${Date.now()}`);
-      localStorage.setItem('sf_auth_token', `token_${Date.now()}`);
-      localStorage.setItem('sf_auth_user', JSON.stringify(fallbackUser));
-      localStorage.removeItem('sf_explicit_logout');
-      setIsLoading(false);
-      return { success: true };
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password: pass,
+      options: {
+        data: { name: name || email.split('@')[0] },
+        emailRedirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    setIsLoading(false);
+    if (error) {
+      return { success: false, message: error.message };
     }
+    if (!data.session) {
+      return {
+        success: false,
+        message: 'Account created. Check your email to confirm, then sign in.',
+      };
+    }
+    return { success: true };
   };
 
   const loginWithGoogle = async () => {
-    if (isLoading) return; // Prevent double-clicks
+    if (isLoading) return;
     setIsLoading(true);
-    const activeClientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || googleClientId || DEFAULT_CLIENT_ID;
-
-    try {
-      // Trigger Google OAuth 2.0 Popup Window
-      const googleUser = await triggerGoogleSignInPopup(activeClientId);
-
-      // Synchronize with Express Backend API
-      try {
-        const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user: googleUser, clientId: activeClientId }),
-        });
-        const data = await res.json();
-        
-        if (data.user) {
-          setUser(data.user);
-          setToken(data.token);
-          localStorage.setItem('sf_auth_token', data.token);
-          localStorage.setItem('sf_auth_user', JSON.stringify(data.user));
-          router.push('/dashboard');
-          return;
-        }
-      } catch (e) {
-        console.warn('Backend API sync skipped, using authenticated Google profile session:', e);
-      }
-
-      // Local Session Save if API offline
-      const authenticatedUser: User = {
-        id: googleUser.id,
-        email: googleUser.email,
-        name: googleUser.name,
-        avatar: googleUser.picture || `https://api.dicebear.com/7.x/avataaars/svg?seed=${encodeURIComponent(googleUser.email)}`,
-        provider: 'google'
-      };
-      const authToken = `sf_google_${Date.now()}`;
-      setUser(authenticatedUser);
-      setToken(authToken);
-      localStorage.setItem('sf_auth_token', authToken);
-      localStorage.setItem('sf_auth_user', JSON.stringify(authenticatedUser));
-      router.push('/dashboard');
-    } catch (err: any) {
-      console.error('Google Sign-In failed:', err?.message || err);
-      // Don't silently swallow — surface to user via alert if it's not a simple cancel
-      if (err?.message && !err.message.includes('cancelled') && !err.message.includes('already in progress')) {
-        alert(err.message);
-      }
-    } finally {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) {
       setIsLoading(false);
+      throw new Error(error.message);
     }
   };
 
-  const logout = () => {
+  const resetPassword = async (email: string) => {
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/auth/callback`,
+    });
+    if (error) {
+      return { success: false, message: error.message };
+    }
+    return { success: true, message: 'Password reset email sent.' };
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
     setUser(null);
     setToken(null);
-    localStorage.removeItem('sf_auth_token');
-    localStorage.removeItem('sf_auth_user');
-    localStorage.setItem('sf_explicit_logout', 'true');
     router.push('/login');
   };
 
@@ -223,11 +141,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         token,
         isLoading,
-        googleClientId,
-        setGoogleClientId,
         login,
         signup,
         loginWithGoogle,
+        resetPassword,
         logout,
       }}
     >

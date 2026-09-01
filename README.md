@@ -1,36 +1,45 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# SocialFlow
 
-## Getting Started
+Multi-platform social scheduler. Next.js UI + Supabase Auth/Postgres. No mock login, no fake publish IDs, no stored media files.
 
-First, run the development server:
+## What is real
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- Email (and optional Google) sign-in via Supabase Auth
+- Connected accounts via OAuth (Facebook Page, Instagram Business, LinkedIn, X, YouTube)
+- Encrypted token storage (AES-256-GCM)
+- Compose, schedule, and publish captions
+- A 30s scheduler that publishes due posts
+- Photos and videos are uploaded from the device into Supabase Storage (`post-media`)
+
+## Setup
+
+1. Copy `env.example` to `frontend/.env.local` and fill in values.
+2. The linked Supabase project is `kettuzklxorjkydoqcqr`. Add `SUPABASE_SERVICE_ROLE_KEY` from the Supabase dashboard (Project Settings → API).
+3. In Supabase Auth:
+   - Enable Email provider
+   - Optional: enable Google and add the same redirect `http://localhost:4000/auth/callback`
+4. Add developer app credentials for each platform you want to connect.
+5. Register these OAuth redirects on each developer portal:
+
+```
+http://localhost:4000/api/oauth/facebook/callback
+http://localhost:4000/api/oauth/instagram/callback
+http://localhost:4000/api/oauth/linkedin/callback
+http://localhost:4000/api/oauth/x/callback
+http://localhost:4000/api/oauth/youtube/callback
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+6. Install and run:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm --prefix frontend install
+npm --prefix frontend run dev
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Open http://localhost:4000
 
-## Learn More
+## Publish rules
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Facebook, LinkedIn, and X can publish caption-only
+- Instagram and YouTube fail unless you upload a file from your device
+- Missing tokens fail. The app never invents a platform post ID

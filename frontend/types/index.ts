@@ -12,6 +12,7 @@ export interface SocialAccount {
   connectedAt?: string;
   followerCount?: number;
   accountType?: 'page' | 'profile' | 'channel' | 'business';
+  tokenExpiresAt?: string | null;
 }
 
 export interface MediaItem {
@@ -23,9 +24,10 @@ export interface MediaItem {
 }
 
 export interface PostTarget {
+  id?: string;
   platform: SocialPlatform;
   accountId: string;
-  status: 'pending' | 'published' | 'failed';
+  status: 'pending' | 'publishing' | 'published' | 'failed';
   publishedAt?: string;
   error?: string;
   platformPostId?: string;
@@ -35,19 +37,14 @@ export interface Post {
   id: string;
   caption: string;
   media: MediaItem[];
+  mediaUrl?: string | null;
+  mediaType?: 'image' | 'video' | null;
   targets: PostTarget[];
-  scheduledFor: string; // ISO String
+  scheduledFor: string;
   status: PostStatus;
   createdAt: string;
   updatedAt: string;
   userId: string;
-  analytics?: {
-    impressions?: number;
-    likes?: number;
-    shares?: number;
-    comments?: number;
-    clicks?: number;
-  };
 }
 
 export interface PlatformLimit {
@@ -57,6 +54,8 @@ export interface PlatformLimit {
   displayName: string;
   brandColor: string;
   bgGradient: string;
+  requiresMedia: boolean;
+  mediaHint: string;
 }
 
 export interface EngagementMetric {

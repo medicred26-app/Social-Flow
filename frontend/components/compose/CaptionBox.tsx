@@ -1,9 +1,9 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 import { SocialPlatform } from '@/types';
 import { PLATFORM_CONFIGS } from '@/lib/constants';
-import { Sparkles, Hash, AlertTriangle, Smile } from 'lucide-react';
+import { Hash, AlertTriangle, Smile } from 'lucide-react';
 
 interface CaptionBoxProps {
   caption: string;
@@ -15,8 +15,6 @@ const EMOJIS = ['🚀', '💡', '🔥', '✨', '🎯', '📈', '⚡', '🎉', '�
 const POPULAR_HASHTAGS = ['#SocialMedia', '#Marketing', '#SaaS', '#Growth', '#Productivity', '#BuildInPublic'];
 
 export function CaptionBox({ caption, onChange, selectedPlatforms }: CaptionBoxProps) {
-  const [isEnhancing, setIsEnhancing] = useState(false);
-
   // Compute character limit status for selected platforms
   const platformLimits = selectedPlatforms.map((p) => {
     const config = PLATFORM_CONFIGS[p];
@@ -32,16 +30,6 @@ export function CaptionBox({ caption, onChange, selectedPlatforms }: CaptionBoxP
   });
 
   const hasExceededAny = platformLimits.some((l) => l.isExceeded);
-
-  const handleAIEnhance = () => {
-    if (!caption.trim()) return;
-    setIsEnhancing(true);
-    setTimeout(() => {
-      const enhanced = `${caption}\n\n✨ Optimized with #SocialFlow for higher engagement. #Growth #Marketing`;
-      onChange(enhanced);
-      setIsEnhancing(false);
-    }, 600);
-  };
 
   const handleInsertEmoji = (emoji: string) => {
     onChange(caption + ' ' + emoji);
@@ -59,15 +47,7 @@ export function CaptionBox({ caption, onChange, selectedPlatforms }: CaptionBoxP
         <label className="text-xs font-bold text-slate-700 dark:text-slate-300 uppercase tracking-wider">
           Post Caption
         </label>
-        <button
-          type="button"
-          onClick={handleAIEnhance}
-          disabled={!caption.trim() || isEnhancing}
-          className="flex items-center gap-1.5 px-3 py-1 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 text-white rounded-lg text-xs font-medium shadow-sm transition-all"
-        >
-          <Sparkles className={`w-3.5 h-3.5 ${isEnhancing ? 'animate-spin' : ''}`} />
-          <span>{isEnhancing ? 'Enhancing...' : 'AI Enhance Caption'}</span>
-        </button>
+        <span className="text-[11px] text-slate-500">{caption.length} characters</span>
       </div>
 
       {/* Main Textarea */}

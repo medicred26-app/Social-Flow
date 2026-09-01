@@ -1,4 +1,4 @@
-import { SocialPlatform, PlatformLimit, SocialAccount } from '@/types';
+import { SocialPlatform, PlatformLimit } from '@/types';
 
 export const PLATFORM_CONFIGS: Record<SocialPlatform, PlatformLimit> = {
   facebook: {
@@ -8,6 +8,8 @@ export const PLATFORM_CONFIGS: Record<SocialPlatform, PlatformLimit> = {
     maxImages: 10,
     brandColor: '#1877F2',
     bgGradient: 'from-blue-600 to-indigo-700',
+    requiresMedia: false,
+    mediaHint: 'Optional. Upload a photo or video from your device, or post caption-only.',
   },
   instagram: {
     displayName: 'Instagram Business',
@@ -16,6 +18,8 @@ export const PLATFORM_CONFIGS: Record<SocialPlatform, PlatformLimit> = {
     maxImages: 10,
     brandColor: '#E4405F',
     bgGradient: 'from-pink-500 via-red-500 to-yellow-500',
+    requiresMedia: true,
+    mediaHint: 'Instagram needs a photo or video. Upload one from your device.',
   },
   youtube: {
     displayName: 'YouTube Channel',
@@ -24,6 +28,8 @@ export const PLATFORM_CONFIGS: Record<SocialPlatform, PlatformLimit> = {
     maxImages: 0,
     brandColor: '#FF0000',
     bgGradient: 'from-red-600 to-rose-700',
+    requiresMedia: true,
+    mediaHint: 'YouTube needs a video. Upload an MP4, MOV, or WEBM from your device.',
   },
   linkedin: {
     displayName: 'LinkedIn Profile',
@@ -32,6 +38,8 @@ export const PLATFORM_CONFIGS: Record<SocialPlatform, PlatformLimit> = {
     maxImages: 9,
     brandColor: '#0A66C2',
     bgGradient: 'from-blue-700 to-cyan-600',
+    requiresMedia: false,
+    mediaHint: 'Optional. Upload a photo or video from your device, or post caption-only.',
   },
   x: {
     displayName: 'X (Twitter)',
@@ -40,61 +48,15 @@ export const PLATFORM_CONFIGS: Record<SocialPlatform, PlatformLimit> = {
     maxImages: 4,
     brandColor: '#1DA1F2',
     bgGradient: 'from-slate-800 to-slate-950',
+    requiresMedia: false,
+    mediaHint: 'Optional. Upload a photo or video from your device, or post caption-only.',
   },
 };
 
-export const INITIAL_MOCK_ACCOUNTS: SocialAccount[] = [
-  {
-    id: 'acc-fb-1',
-    platform: 'facebook',
-    name: 'TechPulse Official',
-    handle: '@techpulse',
-    avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
-    connected: true,
-    connectedAt: '2026-01-15T10:00:00Z',
-    followerCount: 24500,
-    accountType: 'page',
-  },
-  {
-    id: 'acc-ig-1',
-    platform: 'instagram',
-    name: 'TechPulse Daily',
-    handle: '@techpulse.daily',
-    avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
-    connected: true,
-    connectedAt: '2026-01-16T12:30:00Z',
-    followerCount: 51200,
-    accountType: 'business',
-  },
-  {
-    id: 'acc-li-1',
-    platform: 'linkedin',
-    name: 'Alex Morgan',
-    handle: 'in/alex-morgan-tech',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    connected: true,
-    connectedAt: '2026-02-01T08:15:00Z',
-    followerCount: 8900,
-    accountType: 'profile',
-  },
-  {
-    id: 'acc-x-1',
-    platform: 'x',
-    name: 'Alex Morgan ⚡',
-    handle: '@alexm_tech',
-    avatarUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80',
-    connected: true,
-    connectedAt: '2026-02-05T14:20:00Z',
-    followerCount: 14200,
-    accountType: 'profile',
-  },
-  {
-    id: 'acc-yt-1',
-    platform: 'youtube',
-    name: 'TechPulse Studio',
-    handle: '@TechPulseStudio',
-    avatarUrl: 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150&auto=format&fit=crop&q=80',
-    connected: false,
-    accountType: 'channel',
-  },
+export const ALL_PLATFORMS: SocialPlatform[] = [
+  'facebook',
+  'instagram',
+  'linkedin',
+  'x',
+  'youtube',
 ];

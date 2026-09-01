@@ -7,7 +7,7 @@ import { Mail, Lock, Eye, EyeOff, Sparkles, ArrowRight, ArrowLeft, Shield, Check
 import { useAuth } from '@/lib/auth-context';
 
 export default function LoginPage() {
-  const { login, loginWithGoogle } = useAuth();
+  const { login, loginWithGoogle, resetPassword } = useAuth();
   const router = useRouter();
 
   const [email, setEmail] = useState('');
@@ -44,12 +44,21 @@ export default function LoginPage() {
 
   const handleGoogleSignIn = async () => {
     setErrorMessage('');
-    await loginWithGoogle();
+    try {
+      await loginWithGoogle();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Google sign-in is not configured in Supabase Auth.');
+    }
   };
 
-  const handleResetSubmit = (e: React.FormEvent) => {
+  const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!resetEmail) return;
+    const res = await resetPassword(resetEmail);
+    if (!res.success) {
+      setErrorMessage(res.message || 'Could not send reset email.');
+      return;
+    }
     setResetSent(true);
     setTimeout(() => {
       setResetSent(false);

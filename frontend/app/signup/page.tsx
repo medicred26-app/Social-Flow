@@ -50,7 +50,11 @@ export default function SignupPage() {
 
   const handleGoogleSignIn = async () => {
     setErrorMessage('');
-    await loginWithGoogle();
+    try {
+      await loginWithGoogle();
+    } catch (err: any) {
+      setErrorMessage(err.message || 'Google sign-in is not configured in Supabase Auth.');
+    }
   };
 
   return (
