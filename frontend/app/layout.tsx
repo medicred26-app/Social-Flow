@@ -9,7 +9,7 @@ const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
   title: 'SocialFlow — Multi-Platform Social Media Automation',
-  description: 'Schedule, compose, and analyze social media posts across Facebook, Instagram, YouTube, LinkedIn, and X with Express Backend API & Google Client ID Auth.',
+  description: 'Schedule and publish social posts across Facebook, Instagram, YouTube, LinkedIn, and X with Supabase Auth and encrypted account tokens.',
 };
 
 export default function RootLayout({

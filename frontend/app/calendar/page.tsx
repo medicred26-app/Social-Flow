@@ -1,26 +1,30 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Post } from '@/types';
-import { getStoredPosts, saveStoredPosts } from '@/lib/store';
+import { deletePost, fetchPosts } from '@/lib/data/api';
 import { CalendarGrid } from '@/components/calendar/CalendarGrid';
 
 export default function CalendarPage() {
   const [posts, setPosts] = useState<Post[]>([]);
+  const [error, setError] = useState('');
 
   useEffect(() => {
-    setPosts(getStoredPosts());
+    fetchPosts()
+      .then(setPosts)
+      .catch((err) => setError(err.message));
   }, []);
-
-  const handleDeletePost = (id: string) => {
-    const updated = posts.filter((p) => p.id !== id);
-    setPosts(updated);
-    saveStoredPosts(updated);
-  };
 
   return (
     <div className="space-y-6 animate-in fade-in duration-300">
-      <CalendarGrid posts={posts} onDeletePost={handleDeletePost} />
+      {error && <p className="text-xs text-rose-400">{error}</p>}
+      <CalendarGrid
+        posts={posts}
+        onDeletePost={async (id) => {
+          await deletePost(id);
+          setPosts((current) => current.filter((p) => p.id !== id));
+        }}
+      />
     </div>
   );
 }
