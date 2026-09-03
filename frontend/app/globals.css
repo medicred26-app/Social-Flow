@@ -1,0 +1,199 @@
+@import "tailwindcss";
+
+/* Tailwind CSS v4 Class-based Dark Mode Variant */
+@custom-variant dark (&:where(.dark, .dark *));
+
+:root {
+  --bg-page: #f8fafc;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --border-main: #e2e8f0;
+  --text-heading: #0f172a;
+  --text-body: #334155;
+  --text-muted: #64748b;
+  --scroll-track: #f1f5f9;
+  --scroll-thumb: #cbd5e1;
+}
+
+html.dark {
+  --bg-page: #020617;
+  --bg-surface: #0f172a;
+  --bg-card: #0f172a;
+  --border-main: #1e293b;
+  --text-heading: #f8fafc;
+  --text-body: #e2e8f0;
+  --text-muted: #94a3b8;
+  --scroll-track: #020617;
+  --scroll-thumb: #1e293b;
+}
+
+/* Explicit Body Theme Overrides */
+body {
+  background-color: var(--bg-page) !important;
+  color: var(--text-body) !important;
+  overflow-x: hidden;
+  transition: background-color 0.25s ease, color 0.25s ease;
+}
+
+html.dark body {
+  background-color: #020617 !important;
+  color: #f8fafc !important;
+}
+
+html.light body {
+  background-color: #f8fafc !important;
+  color: #0f172a !important;
+}
+
+/* Custom Sleek Scrollbar */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--scroll-track);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scroll-thumb);
+  border-radius: 9999px;
+  border: 2px solid transparent;
+  background-clip: content-box;
+  transition: background-color 0.2s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6366f1;
+  border-radius: 9999px;
+}
+
+/* Tasteful Micro-Interactions for Sections, Cards, Stat Panels, and UI Containers */
+.interactive-section {
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease, box-shadow 0.35s ease, background-color 0.35s ease;
+}
+
+.interactive-section:hover {
+  transform: translateY(-4px) scale(1.004);
+  box-shadow: 0 20px 40px -15px rgba(99, 102, 241, 0.15), 0 0 15px rgba(236, 72, 153, 0.08);
+  border-color: rgba(99, 102, 241, 0.45) !important;
+}
+
+.interactive-card {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease, box-shadow 0.28s ease, background-color 0.28s ease;
+}
+
+.interactive-card:hover {
+  transform: translateY(-3px) scale(1.012);
+  box-shadow: 0 14px 28px -10px rgba(99, 102, 241, 0.18), 0 0 12px rgba(168, 85, 247, 0.1);
+  border-color: rgba(99, 102, 241, 0.35) !important;
+}
+
+.interactive-stat-card {
+  transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease, box-shadow 0.25s ease;
+}
+
+.interactive-stat-card:hover {
+  transform: translateY(-2px) scale(1.015);
+  box-shadow: 0 12px 24px -8px rgba(99, 102, 241, 0.15);
+  border-color: rgba(99, 102, 241, 0.4) !important;
+}
+
+.interactive-panel {
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.interactive-panel:hover {
+  transform: translateY(-2px) scale(1.006);
+  box-shadow: 0 10px 25px -8px rgba(15, 23, 42, 0.12);
+  border-color: rgba(99, 102, 241, 0.3) !important;
+}
+
+.interactive-button, button, a[href] {
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, filter 0.2s ease, border-color 0.2s ease;
+}
+
+.interactive-button:hover, button:hover, a[href]:hover {
+  filter: brightness(1.06);
+}
+
+.interactive-button:active, button:active, a[href]:active {
+  transform: scale(0.97) !important;
+}
+
+.interactive-input {
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.interactive-input:hover {
+  border-color: rgba(99, 102, 241, 0.5) !important;
+}
+
+.interactive-input:focus-within {
+  transform: scale(1.005);
+  box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15);
+}
+
+/* Subtle Page Entrance & Engage Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Glowing Pulsing Border Accent */
+@keyframes borderPulse {
+  0%, 100% { border-color: rgba(99, 102, 241, 0.3); }
+  50% { border-color: rgba(236, 72, 153, 0.6); }
+}
+
+.animate-border-pulse {
+  animation: borderPulse 3.5s infinite ease-in-out;
+}
+
+/* Printable PDF Report Styles */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+  }
+  
+  /* Hide non-report layout elements */
+  nav, header, aside, .no-print {
+    display: none !important;
+  }
+
+  main {
+    max-width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  .print-only {
+    display: block !important;
+  }
+
+  .bg-slate-900, .bg-slate-950 {
+    background-color: #ffffff !important;
+    color: #0f172a !important;
+    border-color: #e2e8f0 !important;
+  }
+
+  .text-white {
+    color: #0f172a !important;
+  }
+
+  .text-slate-400, .text-slate-300 {
+    color: #475569 !important;
+  }
+}
+

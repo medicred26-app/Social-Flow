@@ -1,0 +1,13 @@
+{
+  "name": "socialflow-workspace",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "powershell -Command \"Start-Process npm.cmd -ArgumentList 'run dev:backend' -NoNewWindow; npm run dev:frontend\"",
+    "dev:frontend": "npm --prefix frontend run dev",
+    "dev:backend": "npm --prefix backend run dev",
+    "build:frontend": "npm --prefix frontend run build",
+    "start:frontend": "npm --prefix frontend run start",
+    "start:backend": "npm --prefix backend run start"
+  }
+}
