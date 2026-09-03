@@ -1,70 +1,34 @@
-# SocialFlow
+# SocialFlow Frontend
 
-Multi-platform social scheduler with a **separated frontend and backend**.
-
-| Layer | Stack | Port |
-|-------|-------|------|
-| **Frontend** | Next.js 16 (UI + Supabase Auth session) | 4000 |
-| **Backend** | NestJS (API, OAuth, publish, scheduler) | 3001 |
-| **Database** | Supabase Postgres + Storage | — |
-
-## Architecture
+Next.js UI for SocialFlow. The API lives in [Social-Flow-backend](https://github.com/medicred26-app/Social-Flow-backend).
 
 ```
-Browser → Next.js (4000) ──Bearer JWT──► NestJS API (3001) ──► Supabase
-                │                              │
-                └── Supabase Auth              └── Platform APIs (Meta, LinkedIn, X, YouTube)
+Browser → this repo (port 4000) ── Bearer JWT ──► Social-Flow-backend (port 3001)
+                │
+                └── Supabase Auth + Storage
 ```
 
-- **Frontend**: pages, auth UX, media upload to Supabase Storage
-- **Backend**: posts, accounts, OAuth, encrypted tokens, publishing, cron scheduler
-- **No mock login**, **no fake publish IDs**
-
-## Setup
-
-1. Copy env templates:
-   - `frontend/.env.local` ← frontend section in `env.example`
-   - `backend/.env` ← backend section in `env.example`
-2. Fill Supabase URL, anon key, and **service role key** in `backend/.env`.
-3. In Supabase Auth: enable Email; optional Google with redirect `http://localhost:4000/auth/callback`.
-4. Add platform developer app credentials in `backend/.env`.
-5. Register OAuth callbacks on each developer portal:
-
-```
-http://localhost:3001/api/oauth/facebook/callback
-http://localhost:3001/api/oauth/instagram/callback
-http://localhost:3001/api/oauth/linkedin/callback
-http://localhost:3001/api/oauth/x/callback
-http://localhost:3001/api/oauth/youtube/callback
-```
-
-6. Install and run both apps:
+## Run
 
 ```bash
+cp env.example .env.local
 npm install
-npm --prefix frontend install
-npm --prefix backend install
 npm run dev
 ```
 
 Open http://localhost:4000
 
-## API endpoints (NestJS)
+## Connect to the backend
 
-| Method | Path | Auth |
-|--------|------|------|
-| GET | `/api/accounts` | Bearer JWT |
-| DELETE | `/api/accounts/:id` | Bearer JWT |
-| GET | `/api/posts` | Bearer JWT |
-| POST | `/api/posts` | Bearer JWT |
-| DELETE | `/api/posts/:id` | Bearer JWT |
-| POST | `/api/oauth/:platform/start` | Bearer JWT |
-| GET | `/api/oauth/:platform/callback` | OAuth cookies |
-| POST | `/api/jobs/publish-due` | Bearer CRON_SECRET |
-| GET | `/api/settings/status` | Bearer JWT |
+1. Clone and start [Social-Flow-backend](https://github.com/medicred26-app/Social-Flow-backend) on port 3001.
+2. Use the **same Supabase project** in both repos.
+3. Keep these paired:
 
-## Publish rules
+| Frontend `.env.local` | Backend `.env` |
+|-----------------------|----------------|
+| `NEXT_PUBLIC_API_URL=http://localhost:3001/api` | `APP_URL=http://localhost:3001` |
+| `NEXT_PUBLIC_APP_URL=http://localhost:4000` | `FRONTEND_URL=http://localhost:4000` |
+| `NEXT_PUBLIC_SUPABASE_URL` | `SUPABASE_URL` (same value) |
+| `NEXT_PUBLIC_SUPABASE_ANON_KEY` | `SUPABASE_ANON_KEY` (same value) |
 
-- Facebook, LinkedIn, and X: caption-only OK
-- Instagram and YouTube: require a device upload (stored in Supabase Storage)
-- Missing tokens fail; the app never invents a platform post ID
+When you deploy, change `NEXT_PUBLIC_API_URL` to the live API URL and set the backend `FRONTEND_URL` to this site's URL.
