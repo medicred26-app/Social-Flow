@@ -1,7 +1,12 @@
 import { Post, SocialAccount, SocialPlatform } from '@/types';
 
 export function getApiUrl() {
-  return (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api').replace(/\/$/, '');
+  const raw = (
+    process.env.NEXT_PUBLIC_API_URL ||
+    process.env.NEXT_PUBLIC_BACKEND_URL ||
+    'http://localhost:5000'
+  ).replace(/\/$/, '');
+  return raw.endsWith('/api') ? raw : `${raw}/api`;
 }
 
 const API_BASE = getApiUrl();
